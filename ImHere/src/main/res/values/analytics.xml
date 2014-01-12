@@ -13,7 +13,4 @@
     <!-- Enable debug for Beta versions -->
     <bool name="ga_debug">true</bool>
 
-    <!-- Track uncaught exceptions -->
-    <bool name="ga_reportUncaughtExceptions">true</bool>
-
 </resources>

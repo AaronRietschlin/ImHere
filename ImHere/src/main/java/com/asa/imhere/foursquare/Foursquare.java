@@ -64,8 +64,7 @@ public class Foursquare {
 	 * https
 	 * ://api.foursquare.com/v2/venues/search?ll=40.7,-74&client_id=CLIENT_ID
 	 * &client_secret=CLIENT_SECRET&v=YYYYMMDD
-	 * 
-	 * @param url
+	 *
 	 * @return
 	 */
 	public static String appendAccessParamsForNoAuth() {
@@ -75,8 +74,7 @@ public class Foursquare {
 	/**
 	 * Appends the API version. Each request requires "v=YYYYMMDD" at the end of
 	 * it.
-	 * 
-	 * @param url
+	 *
 	 * @return
 	 */
 	public static String appendApiVersion() {

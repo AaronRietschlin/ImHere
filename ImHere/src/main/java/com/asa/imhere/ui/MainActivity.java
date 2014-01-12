@@ -1,11 +1,7 @@
 package com.asa.imhere.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -28,15 +24,16 @@ import com.asa.imhere.otto.LocationServiceCheckNeededEvent;
 import com.asa.imhere.otto.LocationServicesConnectedEvent;
 import com.asa.imhere.utils.LocationUtils;
 import com.asa.imhere.utils.Utils;
-import com.asa.imhere.widget.ErrorDialogFragment;
-import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
+import com.astuetz.PagerSlidingTabStrip;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AsaBaseActivity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener,
 		ViewPager.OnPageChangeListener {

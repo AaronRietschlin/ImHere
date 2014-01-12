@@ -1,9 +1,10 @@
 package com.asa.imhere;
 
+import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.activeandroid.app.Application;
+import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 
 public class IHApplication extends Application {
@@ -21,6 +22,7 @@ public class IHApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+        Crashlytics.start(this);
 
 		sContext = getApplicationContext();
 

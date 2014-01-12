@@ -1,9 +1,5 @@
 package com.asa.imhere.ui;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.List;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
@@ -25,9 +21,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
 import com.asa.imhere.AppData;
 import com.asa.imhere.R;
 import com.asa.imhere.SearchSuggestionContentProvider;
@@ -44,8 +37,12 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.List;
+
 public class SearchActivity extends Activity implements OnActionExpandListener, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, FutureCallback<SearchResponse>,
-		OnItemClickListener, Listener<SearchResponse>, ErrorListener {
+		OnItemClickListener {
 	private final static String TAG = "SearchActivity";
 
 	private ListView mListView;
@@ -273,13 +270,4 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
 		suggestions.saveRecentQuery(query, secondItem);
 	}
 
-	@Override
-	public void onErrorResponse(VolleyError error) {
-
-	}
-
-	@Override
-	public void onResponse(SearchResponse response) {
-		handleResponse(response);
-	}
 }
