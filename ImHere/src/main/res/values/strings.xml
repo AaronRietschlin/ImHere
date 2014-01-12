@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">I\'m Here</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <!-- Menu Strings -->
+    <string name="menu_search">Search</string>
+
+    <!--  -->
+    <string name="search_query_hint">Type a venue name</string>
+
+    <!-- Explore strings -->
+    <string name="explore_title">Explore</string>
+
+    <!-- Favorite Strings -->
+    <string name="fav_title">Favorites</string>
+    <string name="fav_none">You currently do not have any favorites.</string>
+    <string name="fav_empty">You currently have no favorites!</string>
+
+    <!-- History Strings -->
+    <string name="history_title">History</string>
+    <string name="history_none">You currently do not have a history.</string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+    <!-- Login Strings -->
+    <string name="title_activity_web_auth">Foursquare Authorization</string>
+
+    <!-- The list of Radius, in meters. Be sure to alter the values in arrays.xml if you alter these. -->
+    <string name="radius_5">5 meters</string>
+    <string name="radius_10">10 meters</string>
+    <string name="radius_20">20 meters</string>
+    <string name="radius_30">30 meters</string>
+    <string name="radius_50">50 meters</string>
+
+</resources>

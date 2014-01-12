@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Replace placeholder ID with your tracking ID -->
+    <string name="ga_trackingId">UA-42060824-1</string>
+
+    <!-- Enable automatic activity tracking -->
+    <bool name="ga_autoActivityTracking">true</bool>
+
+    <!-- Enable automatic exception tracking -->
+    <bool name="ga_reportUncaughtExceptions">true</bool>
+
+    <!-- Enable debug for Beta versions -->
+    <bool name="ga_debug">true</bool>
+
+    <!-- Track uncaught exceptions -->
+    <bool name="ga_reportUncaughtExceptions">true</bool>
+
+</resources>
