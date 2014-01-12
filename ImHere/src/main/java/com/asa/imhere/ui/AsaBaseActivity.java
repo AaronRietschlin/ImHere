@@ -1,10 +1,5 @@
 package com.asa.imhere.ui;
 
-import com.asa.imhere.R;
-import com.asa.imhere.R.anim;
-import com.asa.imhere.R.id;
-import com.google.analytics.tracking.android.EasyTracker;
-
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +7,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.style.EasyEditSpan;
+
+import com.asa.imhere.R;
+import com.google.analytics.tracking.android.EasyTracker;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 public class AsaBaseActivity extends FragmentActivity {
@@ -24,6 +21,7 @@ public class AsaBaseActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		mFragmentManager = getSupportFragmentManager();
+
 	}
 
 	@Override
