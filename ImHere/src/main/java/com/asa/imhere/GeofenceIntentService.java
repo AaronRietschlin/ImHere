@@ -11,6 +11,9 @@ import android.util.Log;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
 import com.crashlytics.android.Crashlytics;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.LocationClient;
 
 public class GeofenceIntentService extends IntentService {
 	public static final String TAG = "GeofenceIntentService";
