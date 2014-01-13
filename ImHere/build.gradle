@@ -47,5 +47,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'de.keyboardsurfer.android.widget:crouton:1.8.2'
+    compile 'nl.qbusict:cupboard:1.0.4'
     compile files('libs/libGoogleAnalyticsV2.jar')
 }

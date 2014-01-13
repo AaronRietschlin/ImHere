@@ -8,33 +8,34 @@ import com.asa.imhere.foursquare.FsVenue;
 import com.google.android.gms.location.Geofence;
 import com.google.gson.annotations.SerializedName;
 
-@Table(name = Favorite.TABLE)
-public class Favorite extends Model implements Nameable {
+public class Favorite  implements Nameable {
 	public static final String TABLE = "favorite_venues";
 
-	@Column(name = Columns.REMOTE_ID, notNull = true, unique = true)
-	@SerializedName("id")
-	private String id;
-	@Column(name = Columns.NAME)
+    private Long _id;
+	@SerializedName("venueId")
+	private String venueId;
 	@SerializedName("name")
 	private String name;
-	@Column(name = Columns.AUTO_CHECKIN_ON)
 	private boolean autoCheckInOn;
-	@Column(name = Columns.LATITUDE)
 	private double latitude;
-	@Column(name = Columns.LONGITUDE)
 	private double longitude;
-	@Column(name = Columns.RADIUS)
 	private float radius;
-	@Column(name = Columns.DURATION)
 	private int duration;
 
-	public String getRemoteId() {
-		return id;
+    public Long get_id() {
+        return _id;
+    }
+
+    public void set_id(Long _id) {
+        this._id = _id;
+    }
+
+    public String getRemoteId() {
+		return venueId;
 	}
 
 	public void setRemoteId(String id) {
-		this.id = id;
+		this.venueId = id;
 	}
 
 	public String getName() {
@@ -113,7 +114,7 @@ public class Favorite extends Model implements Nameable {
 
 	public Geofence constructGeofence() {
 		Geofence.Builder builder = new Geofence.Builder();
-		builder.setCircularRegion(latitude, longitude, radius).setRequestId(id).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+		builder.setCircularRegion(latitude, longitude, radius).setRequestId(venueId).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
 				.setExpirationDuration(Geofence.NEVER_EXPIRE);
 		return builder.build();
 	}
