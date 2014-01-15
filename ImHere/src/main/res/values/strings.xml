@@ -13,6 +13,7 @@
 
     <!-- Explore strings -->
     <string name="explore_title">Explore</string>
+    <string name="explore_error_network">There was an error retrieving the list of Venues from Foursquare.</string>
 
     <!-- Favorite Strings -->
     <string name="fav_title">Favorites</string>

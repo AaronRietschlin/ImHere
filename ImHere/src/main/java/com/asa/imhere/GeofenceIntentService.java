@@ -63,7 +63,8 @@ public class GeofenceIntentService extends IntentService {
 		Crashlytics.setString(AppData.CrashlyticKeys.VENUE_ID, mVenueId);
 
 		// Get the Favorite that represents the GeoFence we want to start
-		mGeofenceFav = DatabaseQueries.getFavoriteByVenueId(mVenueId);
+        // TODO - do this
+//		mGeofenceFav = DatabaseQueries.getFavoriteByVenueId(mVenueId);
 		if (mGeofenceFav == null) {
 			throwException("The given venueId was not in the geofencing database: " + mVenueId);
 			return;

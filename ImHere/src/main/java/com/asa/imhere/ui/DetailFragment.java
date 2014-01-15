@@ -117,7 +117,7 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 		}
 		mVenueId = args.getString(AppData.Extras.VENUE_ID);
 
-		mFavorite = DatabaseQueries.getFavoriteByVenueId(mVenueId);
+		mFavorite = DatabaseQueries.getFavoriteByVenueId(mActivity, mVenueId);
 
 		// Default the reqeuest in progress to false
 		mRequestInProgress = false;
@@ -183,7 +183,7 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 		}
 
 		// Determine if favorite
-		boolean isFav = DatabaseQueries.isFavorited(mVenueId);
+		boolean isFav = DatabaseQueries.isInDatabase(mActivity, mVenueId);
 		mSwitchFav.setOnCheckedChangeListener(null);
 		mSwitchFav.setChecked(isFav);
 		mSwitchFav.setOnCheckedChangeListener(mOnFavoritedListener);
@@ -456,15 +456,19 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			if (isChecked) {
 				if (mFavorite == null) {
-					mFavorite = Favorite.constructFromVenue(mVenue, true);
+                    // TODO - save
+					mFavorite = Favorite.constructFromVenue(mVenue);
 				} else {
-					mFavorite.save();
+                    // TODO - save
+//					mFavorite.save();
 				}
 			} else {
 				if (mFavorite == null) {
-					DatabaseQueries.deleteFavoriteByRemoteId(mVenueId);
+                    // TODO - remove
+//					DatabaseQueries.deleteFavoriteByRemoteId(mVenueId);
 				} else {
-					mFavorite.delete();
+                    // TODO - remove
+//					mFavorite.delete();
 					mFavorite = null;
 				}
 				Utils.setViewVisibility(mLayoutSpinners, false);
@@ -500,7 +504,8 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 				resetFavorite(false);
 			}
 			if (mOnAutoCheckinCheckedChangePerformSave) {
-				mFavorite.save();
+                // TODO - save
+//				mFavorite.save();
 			}
 			setupUi();
 			Utils.setViewVisibility(mLayoutSpinners, isChecked);
@@ -520,7 +525,8 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 			float radius = mRadiusValues[position];
 			if (mFavorite != null) {
 				mFavorite.setRadius(radius);
-				mFavorite.save();
+                // TODO - save
+//				mFavorite.save();
 			}
 		}
 
@@ -543,7 +549,8 @@ public class DetailFragment extends AsaBaseFragment implements FutureCallback<Ve
 		mFavorite.setDuration(0);
 		mFavorite.setRadius(0);
 		if (save) {
-			mFavorite.save();
+            // TODO - save
+//			mFavorite.save();
 		}
 	}
 }

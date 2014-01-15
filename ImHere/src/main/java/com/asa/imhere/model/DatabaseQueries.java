@@ -1,27 +1,35 @@
 package com.asa.imhere.model;
 
-import java.util.List;
+import android.content.ContentUris;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
-import com.activeandroid.query.Delete;
-import com.activeandroid.query.Select;
+import com.asa.imhere.model.ImHereContract.FavoriteEntry;
+
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 public class DatabaseQueries {
 
-	public static List<Favorite> getListOfFavorites() {
-		return new Select().from(Favorite.class).execute();
-	}
+    public static Uri saveFavorite(Context context, Favorite favorite) {
+        return cupboard().withContext(context).put(FavoriteEntry.CONTENT_URI, favorite);
+    }
 
-	public static void deleteFavoriteByRemoteId(String remoteId) {
-		new Delete().from(Favorite.class).where(Favorite.Columns.REMOTE_ID + "=?", remoteId).execute();
-	}
+    public static Cursor getFavoritesCursor(Context context) {
+        return cupboard().withContext(context).query(FavoriteEntry.CONTENT_URI, Favorite.class).getCursor();
+    }
 
-	public static boolean isFavorited(String remoteId) {
-		List<Favorite> favorites = new Select().from(Favorite.class).where(Favorite.Columns.REMOTE_ID + "=?", remoteId).execute();
-		return favorites != null && favorites.size() > 0;
-	}
+    public static Favorite getFavoriteById(Context context, long id) {
+        Uri uri = ContentUris.withAppendedId(FavoriteEntry.CONTENT_URI, id);
+        return cupboard().withContext(context).get(uri, Favorite.class);
+    }
 
-	public static Favorite getFavoriteByVenueId(String venueId) {
-		return new Select().from(Favorite.class).where(Favorite.Columns.REMOTE_ID + "=?", venueId).executeSingle();
-	}
+    public static Favorite getFavoriteByVenueId(Context context, String venueId) {
+        return cupboard().withContext(context).query(FavoriteEntry.CONTENT_URI, Favorite.class).withSelection("venue_id=?", venueId).get();
+    }
+
+    public static boolean isInDatabase(Context context, String venueId) {
+        return getFavoriteByVenueId(context, venueId) != null;
+    }
 
 }

@@ -1,6 +1,6 @@
 package com.asa.imhere.model.responses;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.asa.imhere.foursquare.ExploreGroup;
 import com.google.gson.annotations.SerializedName;
@@ -57,7 +57,7 @@ public class ExploreResponse extends BaseResponseItem {
 		@SerializedName("groups")
 		// TODO - Getting error: Expected BEGIN_ARRAY got BEGIN_OBJECT line 1 of
 		// column 919
-		private List<ExploreGroup> groups;
+		private ArrayList<ExploreGroup> groups;
 
 		public FsKeyword getKeywords() {
 			return keywords;
@@ -115,11 +115,11 @@ public class ExploreResponse extends BaseResponseItem {
 			this.totalResults = totalResults;
 		}
 
-		public List<ExploreGroup> getGroups() {
+		public ArrayList<ExploreGroup> getGroups() {
 			return groups;
 		}
 
-		public void setGroups(List<ExploreGroup> groups) {
+		public void setGroups(ArrayList<ExploreGroup> groups) {
 			this.groups = groups;
 		}
 	}

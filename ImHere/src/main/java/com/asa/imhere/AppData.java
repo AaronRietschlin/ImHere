@@ -4,6 +4,8 @@ import android.app.Activity;
 
 public class AppData {
 
+    public static final String AUTHORITY = "com.asa.imhere.provider";
+
 	public static class Extras {
 		public static final String LATITUDE = "lat";
 		public static final String LONGITUDE = "lon";

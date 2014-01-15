@@ -1,6 +1,6 @@
 package com.asa.imhere.foursquare;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -33,7 +33,7 @@ public class ExploreGroup {
 	@SerializedName("name")
 	private String name;
 	@SerializedName("items")
-	private List<Item> items;
+	private ArrayList<Item> items;
 
 	public String getType() {
 		return type;
@@ -51,11 +51,11 @@ public class ExploreGroup {
 		this.name = name;
 	}
 
-	public List<Item> getItems() {
+	public ArrayList<Item> getItems() {
 		return items;
 	}
 
-	public void setItems(List<Item> items) {
+	public void setItems(ArrayList<Item> items) {
 		this.items = items;
 	}
 
@@ -100,7 +100,7 @@ public class ExploreGroup {
 		@SerializedName("count")
 		private int count;
 		@SerializedName("items")
-		private List<ReasonItem> items;
+		private ArrayList<ReasonItem> items;
 
 		public int getCount() {
 			return count;
@@ -110,11 +110,11 @@ public class ExploreGroup {
 			this.count = count;
 		}
 
-		public List<ReasonItem> getItems() {
+		public ArrayList<ReasonItem> getItems() {
 			return items;
 		}
 
-		public void setItems(List<ReasonItem> items) {
+		public void setItems(ArrayList<ReasonItem> items) {
 			this.items = items;
 		}
 
