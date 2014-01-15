@@ -3,7 +3,9 @@ package com.asa.imhere.model;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import com.asa.imhere.model.ImHereContract.FavoriteEntry;
 
@@ -25,11 +27,18 @@ public class DatabaseQueries {
     }
 
     public static Favorite getFavoriteByVenueId(Context context, String venueId) {
-        return cupboard().withContext(context).query(FavoriteEntry.CONTENT_URI, Favorite.class).withSelection("venue_id=?", venueId).get();
+        return cupboard().withContext(context).query(FavoriteEntry.CONTENT_URI, Favorite.class).withSelection("venueId=?", venueId).get();
     }
 
     public static boolean isInDatabase(Context context, String venueId) {
         return getFavoriteByVenueId(context, venueId) != null;
+    }
+
+    public static boolean deleteFavorite(Context context, Favorite favorite) {
+        int count = 0;
+        count = cupboard().withContext(context).delete(FavoriteEntry.CONTENT_URI, favorite);
+        Log.d("DatabaseQueries", "Deleted " + count);
+        return count > 0;
     }
 
 }

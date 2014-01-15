@@ -15,14 +15,9 @@ public class VenueAdapter extends AsaBaseAdapter<Nameable> implements OnClickLis
 
 	private boolean mShowAddBtn;
 	private OnAddButtonClickListener mBtnClickListener;
-	private CheckIsFavoritedListener mIsFavoritedListener;
 
 	public interface OnAddButtonClickListener {
 		abstract void onAddButtonClicked(Nameable venue);
-	}
-
-	public interface CheckIsFavoritedListener {
-		abstract boolean isFavorited(Nameable venue);
 	}
 
 	public VenueAdapter(Context context) {
@@ -68,11 +63,12 @@ public class VenueAdapter extends AsaBaseAdapter<Nameable> implements OnClickLis
 
 		if (mShowAddBtn) {
 			holder.add.setTag(position);
-			if (mIsFavoritedListener != null) {
-				boolean favorited = mIsFavoritedListener.isFavorited(venue);
-				Utils.setViewVisibility(holder.indicator, favorited);
-				setImageViewImage(holder.add, favorited);
-			}
+            // TODO - check if is favorite
+//			if (mIsFavoritedListener != null) {
+//				boolean favorited = mIsFavoritedListener.isFavorited(venue);
+//				Utils.setViewVisibility(holder.indicator, favorited);
+//				setImageViewImage(holder.add, favorited);
+//			}
 			holder.add.setOnClickListener(this);
 		}
 
@@ -81,10 +77,6 @@ public class VenueAdapter extends AsaBaseAdapter<Nameable> implements OnClickLis
 
 	public void setOnAddButtonClickListener(OnAddButtonClickListener listener) {
 		mBtnClickListener = listener;
-	}
-
-	public void setCheckIsFavoritedListener(CheckIsFavoritedListener listener) {
-		mIsFavoritedListener = listener;
 	}
 
 	private void setImageViewImage(ImageView btn, boolean favorited) {

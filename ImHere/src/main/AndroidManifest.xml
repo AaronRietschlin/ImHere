@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.asa.imhere"
     android:versionCode="3"
-    android:versionName="0.3" >
+    android:versionName="0.3">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -20,10 +20,10 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.asa.imhere.ui.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,7 +33,7 @@
         <activity
             android:name="com.asa.imhere.ui.SearchActivity"
             android:label="@string/app_name"
-            android:parentActivityName="com.asa.imhere.ui.MainActivity" >
+            android:parentActivityName="com.asa.imhere.ui.MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -52,7 +52,7 @@
         <activity
             android:name="com.asa.imhere.ui.DetailActivity"
             android:label="@string/title_activity_detail"
-            android:parentActivityName="com.asa.imhere.ui.MainActivity" >
+            android:parentActivityName="com.asa.imhere.ui.MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -74,26 +74,29 @@
         <!--TODO - Maybe add this back in -->
         <!--&lt;!&ndash; For ActiveAndroid &ndash;&gt;-->
         <!--<meta-data-->
-            <!--android:name="AA_DB_NAME"-->
-            <!--android:value="favorites.db" />-->
+        <!--android:name="AA_DB_NAME"-->
+        <!--android:value="favorites.db" />-->
         <!--<meta-data-->
-            <!--android:name="AA_DB_VERSION"-->
-            <!--android:value="1" />-->
+        <!--android:name="AA_DB_VERSION"-->
+        <!--android:value="1" />-->
 
         <!-- Search Suggestion Provider -->
 
         <provider
             android:name="com.asa.imhere.SearchSuggestionContentProvider"
             android:authorities="com.asa.imhere.SearchSuggestionContentProvider" />
+        <provider
+            android:name="com.asa.imhere.model.IHContentPrvoider"
+            android:authorities="com.asa.imhere.provider" />
 
         <!-- IntentService for the Geofencing. -->
         <service
             android:name="com.asa.imhere.GeofenceIntentService"
             android:exported="false"
-            android:label="@string/app_name" >
-        </service>
+            android:label="@string/app_name"></service>
 
-        <meta-data android:name="com.google.android.gms.version"
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
     </application>

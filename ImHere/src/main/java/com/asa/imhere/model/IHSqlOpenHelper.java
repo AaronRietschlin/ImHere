@@ -20,7 +20,6 @@ public class IHSqlOpenHelper extends SQLiteOpenHelper {
         // 1. In a static block like this in a SQLiteOpenHelper or ContentProvider
         // 2. In a custom Application class either form a static block or onCreate
         // 3. By creating your own factory class and have the static block there.
-
         cupboard().register(Favorite.class);
     }
 

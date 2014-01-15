@@ -15,9 +15,10 @@ public class IHApplication extends Application {
 	 * The versioning date that is required by the API.
 	 * https://developer.foursquare.com/overview/versioning
 	 */
-	public static final String VERSIONING_DATE = "20130523";
+	public static final String VERSIONING_DATE = "20140113";
 
 	private static Context sContext;
+
 
 	@Override
 	public void onCreate() {

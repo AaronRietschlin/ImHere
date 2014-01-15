@@ -1,6 +1,9 @@
 package com.asa.imhere.ui;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -11,19 +14,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.asa.imhere.AsaBaseAdapter;
 import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.AsaFutureCallback;
 import com.asa.imhere.R;
-import com.asa.imhere.VenueAdapter;
-import com.asa.imhere.VenueAdapter.CheckIsFavoritedListener;
 import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
 import com.asa.imhere.foursquare.ExploreGroup;
 import com.asa.imhere.foursquare.Foursquare;
 import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
+import com.asa.imhere.model.IHSqlOpenHelper;
 import com.asa.imhere.model.Nameable;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.BusProvider;
@@ -44,7 +49,7 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ExploreFragment extends AsaBaseFragment implements CheckIsFavoritedListener, OnAddButtonClickListener, OnItemClickListener {
+public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClickListener, OnItemClickListener {
     public final static String TAG = "ExploreFragment";
 
     @InjectView(R.id.explore_list)
@@ -112,12 +117,11 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
     }
 
     private void setupAdapter() {
-        mAdapter = new VenueAdapter(mActivity, true);
+        mAdapter = new VenueAdapter(mActivity);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
 
-        mAdapter.setOnAddButtonClickListener(this);
-        mAdapter.setCheckIsFavoritedListener(this);
+//        mAdapter.setOnAddButtonClickListener(this);
     }
 
     @Override
@@ -248,7 +252,7 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
         Utils.launchDetailActivity(mActivity, venueId, view);
     }
 
-    private class PrepAdapterTask extends AsyncTask<Void, Void, ArrayList<Nameable>> {
+    private class PrepAdapterTask extends AsyncTask<Void, Void, ArrayList<FsVenue>> {
 
         private ExploreResponse mResponse;
 
@@ -257,8 +261,8 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
         }
 
         @Override
-        protected ArrayList<Nameable> doInBackground(Void... params) {
-            ArrayList<Nameable> venues = new ArrayList<Nameable>();
+        protected ArrayList<FsVenue> doInBackground(Void... params) {
+            ArrayList<FsVenue> venues = new ArrayList<FsVenue>();
             // The structure of the "explore" api is verbose. Using an
             // ExploreResponse object that houses the "Reponse" object that
             // houses a list of "ExploreGroup"s, each of which houses a list of
@@ -290,13 +294,13 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Nameable> venues) {
+        protected void onPostExecute(ArrayList<FsVenue> venues) {
             if (isCancelled() || !isAdded()) {
                 return;
             }
             if (venues != null) {
                 if (mAdapter == null) {
-                    mAdapter = new VenueAdapter(mActivity);
+                    mAdapter = new com.asa.imhere.ui.ExploreFragment.VenueAdapter(mActivity);
                 }
                 mAdapter.addAll(venues, true, true);
             }
@@ -328,11 +332,6 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
 //            }
 //        }
         BusProvider.post(new LocationSavedDataChanged(false));
-    }
-
-    @Override
-    public boolean isFavorited(Nameable venue) {
-        return isInFavorite(venue.getVenueId());
     }
 
     private boolean isInFavorite(String id) {
@@ -367,6 +366,128 @@ public class ExploreFragment extends AsaBaseFragment implements CheckIsFavorited
 //        Log.d(TAG, "Time using DB: " + dif);
 //        return fav;
         return false;
+    }
+
+    class ViewHolder {
+        @InjectView(R.id.list_item_venue_text)
+        TextView text;
+        @InjectView(R.id.list_item_venue_fav_indicator)
+        View indicator;
+        @InjectView(R.id.list_item_venue_add)
+        ImageView add;
+
+        public ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
+    }
+
+    private class VenueAdapter extends AsaBaseAdapter<FsVenue> {
+
+        public VenueAdapter(Context context) {
+            super(context);
+            items = new ArrayList<FsVenue>();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.list_item_venue, parent, false);
+                holder = new ViewHolder(convertView);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            final FsVenue venue = items.get(position);
+            holder.text.setText(venue.getName());
+
+            new CheckIfFavoriteTask(holder, mActivity).execute(venue.getVenueId());
+            holder.add.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new DatabaseTask(mActivity).execute(venue);
+                }
+            });
+
+            return convertView;
+        }
+    }
+
+    private class CheckIfFavoriteTask extends AsyncTask<String, Void, Boolean> {
+
+        private ViewHolder mHolder;
+        private Context mContext;
+
+        private CheckIfFavoriteTask(ViewHolder mHolder, Context context) {
+            this.mHolder = mHolder;
+            mContext = context.getApplicationContext();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            if (params == null || params.length == 0 || isCancelled()) {
+                return false;
+            }
+            if (isCancelled() || !isAdded()) {
+                return false;
+            }
+            String venueId = params[0];
+            return DatabaseQueries.isInDatabase(mContext, venueId);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            if (isCancelled() || !isAdded()) {
+                return;
+            } else {
+                if (result == null) {
+                    result = false;
+                }
+                Utils.setViewVisibility(mHolder.indicator, result);
+                mHolder.add.setImageResource(result ? R.drawable.ic_action_remove : R.drawable.ic_action_add);
+            }
+        }
+    }
+
+    private class DatabaseTask extends AsyncTask<FsVenue, Void, Void> {
+        private Context mContext;
+
+        private DatabaseTask(Context context) {
+            this.mContext = context.getApplicationContext();
+        }
+
+        @Override
+        protected Void doInBackground(FsVenue... params) {
+            if (params == null || params.length == 0 || isCancelled()) {
+                return null;
+            }
+            SQLiteDatabase db = new IHSqlOpenHelper(mContext).getWritableDatabase();
+            FsVenue venue = params[0];
+            Favorite fav = DatabaseQueries.getFavoriteByVenueId(mContext, venue.getVenueId());
+            if (fav == null || fav.getId() == null) {
+                // Save
+                fav = Favorite.constructFromVenue(venue);
+                Uri uri = DatabaseQueries.saveFavorite(mContext, fav);
+                Log.d(TAG, "Uri null: " + (uri == null));
+            } else {
+                DatabaseQueries.deleteFavorite(mContext, fav);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(!isAdded() || isCancelled()){
+                return;
+            }
+            if(mAdapter == null){
+                mAdapter = new VenueAdapter(mActivity);
+            }
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.asa.imhere.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,23 +9,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.asa.imhere.AsaBaseAdapter;
 import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.R;
 import com.asa.imhere.VenueAdapter;
-import com.asa.imhere.VenueAdapter.CheckIsFavoritedListener;
 import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
+import com.asa.imhere.foursquare.FsVenue;
 import com.asa.imhere.model.Nameable;
 import com.asa.imhere.otto.BusProvider;
 import com.asa.imhere.otto.LocationSavedDataChanged;
 import com.asa.imhere.utils.Utils;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClickListener, CheckIsFavoritedListener, OnItemClickListener {
+public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClickListener, OnItemClickListener {
     public final static String TAG = "FavoriteFragment";
 
     private ListView mListView;
@@ -108,7 +112,6 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
         mListView.setOnItemClickListener(this);
 
         mAdapter.setOnAddButtonClickListener(this);
-        mAdapter.setCheckIsFavoritedListener(this);
     }
 
     @Override
@@ -145,7 +148,6 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
         BusProvider.post(new LocationSavedDataChanged(true));
     }
 
-    @Override
     public boolean isFavorited(Nameable venue) {
         return isInFavorite(venue.getVenueId());
     }

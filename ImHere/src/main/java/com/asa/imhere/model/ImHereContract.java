@@ -13,7 +13,7 @@ public class ImHereContract  {
 
 
     public static abstract class FavoriteEntry implements BaseColumns {
-        public static final String TABLE_NAME = "tabs";
+        public static final String TABLE_NAME = "Favorite";
         public static final Uri CONTENT_URI = getUri(TABLE_NAME);
         public static final String CONTENT_TYPE = getContentListType(TABLE_NAME);
         public static final String CONTENT_TYPE_ITEM = getContentItemType(TABLE_NAME);

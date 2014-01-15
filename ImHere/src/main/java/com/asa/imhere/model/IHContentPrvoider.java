@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+import com.asa.imhere.AppData;
 import com.asa.imhere.model.ImHereContract.FavoriteEntry;
 
 import static nl.qbusict.cupboard.CupboardFactory.cupboard;
@@ -17,9 +18,8 @@ import static nl.qbusict.cupboard.CupboardFactory.cupboard;
  */
 public class IHContentPrvoider extends ContentProvider {
 
-    public static String AUTHORITY = "nl.qbusict.cupboard.example.provider";
-    public static final Uri AUTHOR_URI = Uri.parse("content://" + AUTHORITY + "/author");
-    public static final Uri BOOKS_URI = Uri.parse("content://" + AUTHORITY + "/book");
+    public static final Uri AUTHOR_URI = Uri.parse("content://" + AppData.AUTHORITY + "/author");
+    public static final Uri BOOKS_URI = Uri.parse("content://" + AppData.AUTHORITY + "/book");
 
     private IHSqlOpenHelper mDbHelper;
     private static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -27,18 +27,15 @@ public class IHContentPrvoider extends ContentProvider {
     private static final int LIST_FAVORITE = 0;
     private static final int ITEM_FAVORITE = 1;
 
-
     static {
-        sUriMatcher.addURI(AUTHORITY, FavoriteEntry.TABLE_NAME, LIST_FAVORITE);
-        sUriMatcher.addURI(AUTHORITY, FavoriteEntry.TABLE_NAME + "/#", ITEM_FAVORITE);
+        sUriMatcher.addURI(AppData.AUTHORITY, FavoriteEntry.TABLE_NAME, LIST_FAVORITE);
+        sUriMatcher.addURI(AppData.AUTHORITY, FavoriteEntry.TABLE_NAME + "/#", ITEM_FAVORITE);
     }
-
 
     @Override
     public String getType(Uri uri) {
         return null;
     }
-
 
     @Override
     public boolean onCreate() {
@@ -104,8 +101,10 @@ public class IHContentPrvoider extends ContentProvider {
         int updateCount = 0;
         switch (sUriMatcher.match(uri)) {
             case LIST_FAVORITE:
-            case ITEM_FAVORITE:
                 updateCount = cupboard().withDatabase(db).update(Favorite.class, values, selection, selectionArgs);
+                break;
+            case ITEM_FAVORITE:
+                updateCount = cupboard().withDatabase(db).update(Favorite.class, values);
                 break;
         }
 
@@ -121,8 +120,10 @@ public class IHContentPrvoider extends ContentProvider {
         int deleteCount = 0;
         switch (sUriMatcher.match(uri)) {
             case LIST_FAVORITE:
-            case ITEM_FAVORITE:
                 deleteCount = cupboard().withDatabase(db).delete(Favorite.class, selection, args);
+                break;
+            case ITEM_FAVORITE:
+                deleteCount = cupboard().withDatabase(db).delete(Favorite.class, ContentUris.parseId(uri)) ? 1 : 0;
                 break;
         }
 

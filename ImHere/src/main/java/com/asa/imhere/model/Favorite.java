@@ -15,11 +15,9 @@ public class Favorite implements Nameable, Parcelable {
 
     private Long _id;
     @SerializedName("venueId")
-    @Column(value = "venue_id")
     private String venueId;
     @SerializedName("name")
     private String name;
-    @Column(value = "auto_checkin_on")
     private boolean autoCheckInOn;
     private double latitude;
     private double longitude;
@@ -28,11 +26,11 @@ public class Favorite implements Nameable, Parcelable {
 
     public Favorite(){}
 
-    public Long get_id() {
+    public Long getId() {
         return _id;
     }
 
-    public void set_id(Long _id) {
+    public void setId(Long _id) {
         this._id = _id;
     }
 
@@ -117,17 +115,6 @@ public class Favorite implements Nameable, Parcelable {
         builder.setCircularRegion(latitude, longitude, radius).setRequestId(venueId).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE);
         return builder.build();
-    }
-
-    public static class Columns {
-        public static final String ID = "Id";
-        public static final String REMOTE_ID = "remote_id";
-        public static final String NAME = "name";
-        public static final String AUTO_CHECKIN_ON = "auto_checkin_on";
-        public static final String LATITUDE = "latitude";
-        public static final String LONGITUDE = "longitude";
-        public static final String RADIUS = "radius";
-        public static final String DURATION = "duration";
     }
 
     @Override
