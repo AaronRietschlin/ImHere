@@ -32,6 +32,7 @@ import com.asa.imhere.model.IHSqlOpenHelper;
 import com.asa.imhere.model.Nameable;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.BusProvider;
+import com.asa.imhere.otto.FavoriteDeletedEvent;
 import com.asa.imhere.otto.LocationNeededEvent;
 import com.asa.imhere.otto.LocationProvidedEvent;
 import com.asa.imhere.otto.LocationSavedDataChanged;
@@ -447,6 +448,15 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
                 }
                 Utils.setViewVisibility(mHolder.indicator, result);
                 mHolder.add.setImageResource(result ? R.drawable.ic_action_remove : R.drawable.ic_action_add);
+            }
+        }
+    }
+
+    @Subscribe
+    public void onFavoriteDeletedEvent(FavoriteDeletedEvent event){
+        if(event != null && event.isDeleted()){
+            if(mAdapter != null){
+                mAdapter.notifyDataSetChanged();
             }
         }
     }

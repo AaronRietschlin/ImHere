@@ -1,7 +1,12 @@
 package com.asa.imhere.ui;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,34 +14,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.asa.imhere.AsaBaseAdapter;
+import com.asa.imhere.AppData;
 import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.R;
-import com.asa.imhere.VenueAdapter;
-import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.model.DatabaseQueries;
+import com.asa.imhere.model.Favorite;
+import com.asa.imhere.model.ImHereContract;
 import com.asa.imhere.model.Nameable;
 import com.asa.imhere.otto.BusProvider;
-import com.asa.imhere.otto.LocationSavedDataChanged;
+import com.asa.imhere.otto.FavoriteDeletedEvent;
 import com.asa.imhere.utils.Utils;
-import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClickListener, OnItemClickListener {
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
+
+public class FavoriteFragment extends AsaBaseFragment implements OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     public final static String TAG = "FavoriteFragment";
 
-    private ListView mListView;
-    private TextView mTextEmpty;
+    @InjectView(R.id.explore_list)
+    ListView mListView;
+    @InjectView(R.id.explore_empty_text)
+    TextView mTextEmpty;
 
-    private VenueAdapter mAdapter;
+    private FavoriteAdapter mAdapter;
     // TODO - move this to MainActivity so the favorites tab can use it?
-    private List<Nameable> mFavorites;
+    private ArrayList<Nameable> mFavorites;
 
     // TODO - Move retrieving favorites off of the UI thread.
 
@@ -55,10 +66,7 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_explore, container, false);
-
-        mListView = (ListView) v.findViewById(R.id.explore_list);
-        mTextEmpty = (TextView) v.findViewById(R.id.explore_empty_text);
-
+        ButterKnife.inject(this, v);
         return v;
     }
 
@@ -68,50 +76,20 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
 
         // TODO - When moving away from this screen (by paging to the history
         // tab), the items disappear.
-        if (mFavorites == null) {
-            setupAdapter();
-            getFavorites(false);
-        } else {
-            if (mAdapter == null) {
-                setupAdapter();
-            }
-            mAdapter.addAll(mFavorites, true, true);
-            Utils.setViewVisibility(mLoadingLayout, false);
-        }
+        setupAdapter();
+        initLoader();
     }
 
-    /**
-     * Converts the stored favorites into a list of {@link Nameable} objects.
-     */
-    private void getFavorites(boolean clearCurrentList) {
-        // TODO - move this off UI thread
-        // TODO - implement this
-//		List<Favorite> favorites = DatabaseQueries.getListOfFavorites();
-//		if (favorites == null || favorites.size() == 0) {
-//			// TODO _ inform failurer
-//			notifyDataSetChanged();
-//			return;
-//		}
-//		if (mFavorites == null) {
-//			mFavorites = new ArrayList<Nameable>();
-//		}
-//		// Clear the current list if necessary to prevent duplicates
-//		if (clearCurrentList) {
-//			mFavorites.clear();
-//		}
-//		for (Favorite favorite : favorites) {
-//			mFavorites.add(favorite);
-//		}
-//		mAdapter.addAll(mFavorites, true, true);
-        notifyDataSetChanged();
+    private void initLoader() {
+        Utils.setViewVisibility(mLoadingLayout, true);
+        getLoaderManager().initLoader(AppData.Loaders.ID_FAVORITES, null, this);
     }
+
 
     private void setupAdapter() {
-        mAdapter = new VenueAdapter(mActivity, true);
+        mAdapter = new FavoriteAdapter(mActivity, null, 0);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
-
-        mAdapter.setOnAddButtonClickListener(this);
     }
 
     @Override
@@ -133,20 +111,6 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
         Utils.launchDetailActivity(mActivity, venueId, view);
     }
 
-    @Override
-    public void onAddButtonClicked(Nameable venue) {
-        if (isFavorited(venue)) {
-            String id = venue.getVenueId();
-            // TODO - delete
-//			DatabaseQueries.deleteFavoriteByRemoteId(id);
-            removeFromFavoritesById(id);
-            mAdapter.notifyDataSetChanged();
-        } else {
-            // Do nothing because it is no longer there, so there will be no way
-            // to click an unfavorited item here.
-        }
-        BusProvider.post(new LocationSavedDataChanged(true));
-    }
 
     public boolean isFavorited(Nameable venue) {
         return isInFavorite(venue.getVenueId());
@@ -166,21 +130,6 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
         return isIn;
     }
 
-    private void removeFromFavoritesById(String id) {
-        int size = mFavorites.size();
-        for (int i = 0; i < size; i++) {
-            Nameable fav = mFavorites.get(i);
-            if (TextUtils.equals(fav.getVenueId(), id)) {
-                mFavorites.remove(i);
-                break;
-            }
-        }
-        // Delete from the adapter
-        mAdapter.removeById(id, true);
-        notifyDataSetChanged();
-        // TODO -notify to the user that the removal was successful.
-    }
-
     private void notifyDataSetChanged() {
         if (mLoadingLayout != null && mLoadingLayout.getVisibility() == View.VISIBLE) {
             Utils.setViewVisibility(mLoadingLayout, false);
@@ -194,15 +143,108 @@ public class FavoriteFragment extends AsaBaseFragment implements OnAddButtonClic
         }
     }
 
-    @Subscribe
-    public void onLocationDeletedEvent(LocationSavedDataChanged event) {
-        if (event != null) {
-            if (event.isFromFavoritesScreen()) {
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+        switch (loaderId) {
+            case AppData.Loaders.ID_FAVORITES:
+                return new CursorLoader(mActivity, ImHereContract.FavoriteEntry.CONTENT_URI, null, null, null, null);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        switch (cursorLoader.getId()) {
+            case AppData.Loaders.ID_FAVORITES:
+                Utils.setViewVisibility(mLoadingLayout, false);
+                mAdapter.swapCursor(cursor);
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        Utils.setViewVisibility(mLoadingLayout, true);
+        switch (cursorLoader.getId()) {
+            case AppData.Loaders.ID_FAVORITES:
+                mAdapter.swapCursor(null);
+                break;
+        }
+    }
+
+    class ViewHolder {
+        @InjectView(R.id.list_item_venue_text)
+        TextView text;
+        @InjectView(R.id.list_item_venue_fav_indicator)
+        View indicator;
+        @InjectView(R.id.list_item_venue_add)
+        ImageView add;
+
+        public ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
+    }
+
+    private class FavoriteAdapter extends CursorAdapter {
+
+        private LayoutInflater mInflater;
+
+        public FavoriteAdapter(Context context, Cursor c, int flags) {
+            super(context, c, flags);
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View v = mInflater.inflate(R.layout.list_item_venue, parent, false);
+            ViewHolder holder = new ViewHolder(v);
+            v.setTag(holder);
+            holder.indicator.setVisibility(View.GONE);
+            holder.add.setImageResource(R.drawable.ic_action_remove);
+            return v;
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            ViewHolder holder = (ViewHolder) view.getTag();
+            final Favorite favorite = cupboard().withCursor(cursor).get(Favorite.class);
+            holder.text.setText(favorite.getName());
+            holder.add.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new DatabaseTask(mActivity).execute(favorite);
+                }
+            });
+        }
+    }
+
+    private class DatabaseTask extends AsyncTask<Favorite, Void, Void> {
+        private Context mContext;
+
+        private DatabaseTask(Context context) {
+            this.mContext = context.getApplicationContext();
+        }
+
+        @Override
+        protected Void doInBackground(Favorite... params) {
+            if (params == null || params.length == 0 || isCancelled()) {
+                return null;
+            }
+            Favorite fav = params[0];
+            DatabaseQueries.deleteFavorite(mContext, fav);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (!isAdded() || isCancelled()) {
                 return;
             }
-            // We only want to accept this event if it was broadcast from
-            // another section
-            getFavorites(true);
+            if (mAdapter == null) {
+                mAdapter = new FavoriteAdapter(mActivity, null, 0);
+            }
+            BusProvider.post(new FavoriteDeletedEvent(true));
         }
     }
 }

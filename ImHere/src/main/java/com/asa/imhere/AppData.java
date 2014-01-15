@@ -34,4 +34,8 @@ public class AppData {
 		public static final String ACTION_CHECKIN = "check_in";
 	}
 
+    public static class Loaders{
+        public static final int ID_FAVORITES = 10;
+    }
+
 }
