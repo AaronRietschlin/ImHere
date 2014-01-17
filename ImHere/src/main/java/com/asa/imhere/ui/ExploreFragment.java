@@ -43,14 +43,19 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClickListener, OnItemClickListener {
+public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClickListener, OnItemClickListener, OnRefreshListener {
     public final static String TAG = "ExploreFragment";
 
     @InjectView(R.id.explore_list)
     ListView mListView;
     @InjectView(R.id.explore_empty_text)
     TextView mTvEmpty;
+    @InjectView(R.id.ptr_layout)
+    PullToRefreshLayout mPullToRefreshLayout;
 
     private VenueAdapter mAdapter;
     // TODO - move this to MainActivity so the favorites tab can use it?
@@ -79,7 +84,14 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        // Now setup the PullToRefreshLayout
+        ActionBarPullToRefresh.from(mActivity)
+                // Mark All Children as pullable
+                .allChildrenArePullable()
+                        // Set the OnRefreshListener
+                .listener(this)
+                        // Finally commit the setup to our PullToRefreshLayout
+                .setup(mPullToRefreshLayout);
         if (savedInstanceState == null) {
             contsructMostRecentLatLon();
             setupAdapter();
@@ -132,6 +144,10 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         BusProvider.unregister(this);
     }
 
+    private void addJob() {
+        mJobManager.addJobInBackground(new FetchVenuesExploreJob(mMostRecentLat, mMostRecentLon));
+    }
+
     private void contsructMostRecentLatLon() {
         double[] latLon = PreferenceUtils.getMostRecentLatLon(mActivity);
         mMostRecentLat = latLon[0];
@@ -145,7 +161,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
             mMostRecentLat = loc.getLatitude();
             mMostRecentLon = loc.getLongitude();
             PreferenceUtils.setMostRecentLatLon(mActivity.getApplicationContext(), mMostRecentLat, mMostRecentLon);
-            mJobManager.addJobInBackground(new FetchVenuesExploreJob(mMostRecentLat, mMostRecentLon));
+            addJob();
         }
     }
 
@@ -175,6 +191,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
                 mAdapter = new VenueAdapter(mActivity);
             }
             mAdapter.addAll(event.getVenues(), !event.isPaginated(), true);
+            mPullToRefreshLayout.setRefreshComplete();
         }
     }
 
@@ -263,6 +280,11 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
 //        Log.d(TAG_PREFIX, "Time using DB: " + dif);
 //        return fav;
         return false;
+    }
+
+    @Override
+    public void onRefreshStarted(View view) {
+        addJob();
     }
 
     class ViewHolder {

@@ -5,11 +5,41 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
     </style>
 
     <style name="Loading">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="Widget.Custom.PtrHeader" parent="android:Widget">
+        <!-- The background of the header view -->
+        <item name="ptrHeaderBackground">#f00</item>
+
+        <!-- The height of the header view. Please note, only set if in you really need to -->
+        <!--<item name="ptrHeaderHeight"></item>-->
+
+        <!--&lt;!&ndash; TextAppearance of the header view's title text &ndash;&gt;-->
+        <!--<item name="ptrHeaderTitleTextAppearance"></item>-->
+
+        <!--&lt;!&ndash; Color to tint the progress bar &ndash;&gt;-->
+        <!--<item name="ptrProgressBarColor">#000</item>-->
+
+        <!--&lt;!&ndash; Radius of the progress bar corners &ndash;&gt;-->
+        <!--<item name="ptrProgressBarCornerRadius">4dp</item>-->
+
+        <!--&lt;!&ndash; Style of the Progress Bar. Values are either: inside or outside &ndash;&gt;-->
+        <item name="ptrProgressBarStyle">inside</item>
+
+        <!-- The strings to be displayed at the various states -->
+        <item name="ptrPullText">Pull This Shit</item>
+        <item name="ptrRefreshingText">Refreshing this shit</item>
+        <item name="ptrReleaseText">Almost done with this shit/</item>
+    </style>
+
+    <style name="Widget.ProgressBar.PullToRefresh" parent="android:Widget">
+        <item name="spb_color">#0f0</item>
     </style>
 
 </resources>
