@@ -48,5 +48,7 @@ dependencies {
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'de.keyboardsurfer.android.widget:crouton:1.8.2'
     compile 'nl.qbusict:cupboard:1.0.4'
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.3'
+    compile 'com.path:android-priority-jobqueue:1.0'
     compile files('libs/libGoogleAnalyticsV2.jar')
 }

@@ -5,10 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,28 +18,24 @@ import android.widget.TextView;
 
 import com.asa.imhere.AsaBaseAdapter;
 import com.asa.imhere.AsaBaseFragment;
-import com.asa.imhere.AsaFutureCallback;
 import com.asa.imhere.R;
 import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
-import com.asa.imhere.foursquare.ExploreGroup;
-import com.asa.imhere.foursquare.Foursquare;
 import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.jobs.FetchVenuesExploreJob;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
 import com.asa.imhere.model.IHSqlOpenHelper;
 import com.asa.imhere.model.Nameable;
-import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.BusProvider;
+import com.asa.imhere.otto.ExploreVenuesRetreived;
 import com.asa.imhere.otto.FavoriteDeletedEvent;
 import com.asa.imhere.otto.LocationNeededEvent;
 import com.asa.imhere.otto.LocationProvidedEvent;
 import com.asa.imhere.otto.LocationSavedDataChanged;
 import com.asa.imhere.otto.LocationServicesConnectedEvent;
-import com.asa.imhere.utils.LocationUtils;
+import com.asa.imhere.utils.LogUtils;
 import com.asa.imhere.utils.PreferenceUtils;
 import com.asa.imhere.utils.Utils;
-import com.crashlytics.android.Crashlytics;
-import com.google.gson.JsonObject;
 import com.koushikdutta.ion.Ion;
 import com.squareup.otto.Subscribe;
 
@@ -66,8 +60,6 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     private double mMostRecentLon;
 
     private boolean mLocationServicesConnected;
-
-    private PrepAdapterTask mTask;
 
     private final static String TEST_URL = "https://api.foursquare.com/v2/venues/explore?ll=40.7,-74&oauth_token=JHKJOU0BMNRTWRMM0FKLSULNKCCRRHAPXMKGWXL4XTG2PAAA&v=20130522";
 
@@ -134,18 +126,10 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     @Override
     public void onStop() {
         super.onStop();
+        // TODO - Cancel jobs somehow.
         // Cancel the currently running request (if any).
-        // VolleyProvider.getRequestQueue(mActivity).cancelAll(TAG);
         Ion.getDefault(mActivity).cancelAll(TAG);
-        if (isTaskCancelable()) {
-            mTask.cancel(true);
-        }
         BusProvider.unregister(this);
-    }
-
-    private boolean isTaskCancelable() {
-        Status status = mTask.getStatus();
-        return mTask != null && (status == Status.RUNNING || status == Status.PENDING);
     }
 
     private void contsructMostRecentLatLon() {
@@ -161,7 +145,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
             mMostRecentLat = loc.getLatitude();
             mMostRecentLon = loc.getLongitude();
             PreferenceUtils.setMostRecentLatLon(mActivity.getApplicationContext(), mMostRecentLat, mMostRecentLon);
-            makeRequest();
+            mJobManager.addJobInBackground(new FetchVenuesExploreJob(mMostRecentLat, mMostRecentLon));
         }
     }
 
@@ -184,6 +168,16 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         }
     }
 
+    @Subscribe
+    public void onVenuesRetrieved(ExploreVenuesRetreived event) {
+        if (event != null && event.getVenues() != null) {
+            if (mAdapter == null) {
+                mAdapter = new VenueAdapter(mActivity);
+            }
+            mAdapter.addAll(event.getVenues(), !event.isPaginated(), true);
+        }
+    }
+
     private void showErrorMessage(boolean showError, String message) {
         if (showError) {
             Utils.setViewVisibility(mLoadingLayout, false);
@@ -203,49 +197,6 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         showErrorMessage(showError, getString(messageResId));
     }
 
-    private void makeRequest() {
-        if (!LocationUtils.isValidLatLon(mMostRecentLat, mMostRecentLon)) {
-            Utils.setViewVisibility(mLoadingLayout, true);
-            BusProvider.post(new LocationNeededEvent());
-            return;
-        }
-        String url = Foursquare.constructExploreUrl(null, mMostRecentLat, mMostRecentLon, mActivity);
-        Ion.with(mActivity, url).group(TAG).asJsonObject().setCallback(new AsaFutureCallback<JsonObject, ExploreResponse>(url) {
-
-            @Override
-            public void onError() {
-                Crashlytics.log(Log.ERROR, TAG, "An error occurred getting the Explore data. Url requested: " + mUrl);
-                showErrorMessage(true, R.string.explore_error_network);
-            }
-
-            @Override
-            public void onException(Exception e) {
-                Crashlytics.logException(e);
-                onError();
-            }
-
-            @Override
-            public void onSuccess(JsonObject result) {
-                ExploreResponse response = serialize(result, ExploreResponse.class);
-                if (response != null) {
-                    initTask(response);
-                }
-            }
-        });
-    }
-
-    private void initTask(ExploreResponse response) {
-        // AsyncTasks cannot execute more than once. So, only allow it to
-        // execute once
-        if (mTask == null) {
-            mTask = new PrepAdapterTask(response);
-        } else {
-            mTask = null;
-            mTask = new PrepAdapterTask(response);
-        }
-        mTask.execute();
-    }
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Nameable venue = (Nameable) mAdapter.getItem(position);
@@ -253,61 +204,6 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         Utils.launchDetailActivity(mActivity, venueId, view);
     }
 
-    private class PrepAdapterTask extends AsyncTask<Void, Void, ArrayList<FsVenue>> {
-
-        private ExploreResponse mResponse;
-
-        public PrepAdapterTask(ExploreResponse response) {
-            mResponse = response;
-        }
-
-        @Override
-        protected ArrayList<FsVenue> doInBackground(Void... params) {
-            ArrayList<FsVenue> venues = new ArrayList<FsVenue>();
-            // The structure of the "explore" api is verbose. Using an
-            // ExploreResponse object that houses the "Reponse" object that
-            // houses a list of "ExploreGroup"s, each of which houses a list of
-            // "Items", each of which houses a venue. That's what we want
-            ExploreResponse.Response response = mResponse.getResponse();
-            if (response == null) {
-                return venues;
-            }
-            ArrayList<ExploreGroup> groups = response.getGroups();
-            if (groups == null) {
-                return venues;
-            }
-            for (ExploreGroup group : groups) {
-                ArrayList<ExploreGroup.Item> items = group.getItems();
-                if (items == null) {
-                    continue;
-                }
-                for (ExploreGroup.Item item : items) {
-                    if (item == null) {
-                        continue;
-                    }
-                    FsVenue venue = item.getVenue();
-                    if (venue != null) {
-                        venues.add(venue);
-                    }
-                }
-            }
-            return venues;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<FsVenue> venues) {
-            if (isCancelled() || !isAdded()) {
-                return;
-            }
-            if (venues != null) {
-                if (mAdapter == null) {
-                    mAdapter = new com.asa.imhere.ui.ExploreFragment.VenueAdapter(mActivity);
-                }
-                mAdapter.addAll(venues, true, true);
-            }
-            Utils.setViewVisibility(mLoadingLayout, false);
-        }
-    }
 
     @Override
     public void onAddButtonClicked(Nameable venue) {
@@ -364,7 +260,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
 //        long startTime = System.currentTimeMillis();
 //        boolean fav = DatabaseQueries.isFavorited(id);
 //        long dif = System.currentTimeMillis() - startTime;
-//        Log.d(TAG, "Time using DB: " + dif);
+//        Log.d(TAG_PREFIX, "Time using DB: " + dif);
 //        return fav;
         return false;
     }
@@ -413,6 +309,17 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
 
             return convertView;
         }
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+            invalidateLoading();
+        }
+    }
+
+    private void invalidateLoading() {
+        int count = mAdapter != null ? mAdapter.getCount() : 0;
+        Utils.setViewVisibility(mLoadingLayout, count == 0);
     }
 
     private class CheckIfFavoriteTask extends AsyncTask<String, Void, Boolean> {
@@ -453,9 +360,9 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     }
 
     @Subscribe
-    public void onFavoriteDeletedEvent(FavoriteDeletedEvent event){
-        if(event != null && event.isDeleted()){
-            if(mAdapter != null){
+    public void onFavoriteDeletedEvent(FavoriteDeletedEvent event) {
+        if (event != null && event.isDeleted()) {
+            if (mAdapter != null) {
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -480,7 +387,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
                 // Save
                 fav = Favorite.constructFromVenue(venue);
                 Uri uri = DatabaseQueries.saveFavorite(mContext, fav);
-                Log.d(TAG, "Uri null: " + (uri == null));
+                LogUtils.LOGD(TAG, "Uri null: " + (uri == null));
             } else {
                 DatabaseQueries.deleteFavorite(mContext, fav);
             }
@@ -490,10 +397,10 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if(!isAdded() || isCancelled()){
+            if (!isAdded() || isCancelled()) {
                 return;
             }
-            if(mAdapter == null){
+            if (mAdapter == null) {
                 mAdapter = new VenueAdapter(mActivity);
             }
             mAdapter.notifyDataSetChanged();
