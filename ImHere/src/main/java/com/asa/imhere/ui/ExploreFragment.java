@@ -201,7 +201,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Nameable venue = (Nameable) mAdapter.getItem(position);
         String venueId = venue.getVenueId();
-        Utils.launchDetailActivity(mActivity, venueId, view);
+        Utils.launchDetailActivity(mActivity, venueId, venue.getName(), view);
     }
 
 

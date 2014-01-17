@@ -12,7 +12,6 @@ import com.asa.imhere.R;
 
 public class DetailActivity extends AsaBaseActivity {
 
-	private String mVenueId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +28,11 @@ public class DetailActivity extends AsaBaseActivity {
 		if (extras == null) {
 			throw new IllegalStateException("You must pass either a VenueID or a Venue into the DetailActivity.");
 		}
-		mVenueId = extras.getString(AppData.Extras.VENUE_ID);
+        String mVenueId = extras.getString(AppData.Extras.VENUE_ID);
+        String mVenueName = extras.getString(AppData.Extras.VENUE_NAME);
 
 		if (savedInstanceState == null) {
-			addFragment(DetailFragment.newInstance(mVenueId), DetailFragment.TAG, false, false);
+			addFragment(DetailFragment.newInstance(mVenueId, mVenueName), DetailFragment.TAG, false, false);
 		}
 	}
 

@@ -8,7 +8,6 @@ import com.asa.imhere.foursquare.FsVenue;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.ExploreVenuesRetreived;
 import com.asa.imhere.utils.LogUtils;
-import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 import com.path.android.jobqueue.Params;
 
@@ -49,11 +48,10 @@ public class FetchVenuesExploreJob extends BaseJob {
         String url = Foursquare.constructExploreUrl(null, mLatitude, mLongitude, IHApplication.getContext());
         String result = Ion.with(IHApplication.getContext(), url).group(TAG).asString().get();
         if (result == null) {
-            Exception e = new Exception("No result found for request: " + url);
-            Crashlytics.logException(e);
-            throw e;
+            throwException("No result found for request: " + url);
         }
         ExploreResponse fullResponse = new SerializationProvider<ExploreResponse>().serialize(result, ExploreResponse.class);
+        checkIfResponseIsValid(fullResponse, TAG);
         mVenuesRetreived = new ArrayList<FsVenue>();
         // The structure of the "explore" api is verbose. Using an
         // ExploreResponse object that houses the "Reponse" object that
@@ -86,7 +84,6 @@ public class FetchVenuesExploreJob extends BaseJob {
 
     @Override
     protected boolean shouldReRunOnThrowable(Throwable throwable) {
-        LogUtils.LOGD(TAG, "Test");
-        return true;
+        return super.shouldReRunOnThrowable(throwable);
     }
 }

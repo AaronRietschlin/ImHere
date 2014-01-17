@@ -106,9 +106,13 @@ public class FavoriteFragment extends AsaBaseFragment implements OnItemClickList
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Nameable venue = (Nameable) mAdapter.getItem(position);
-        String venueId = venue.getVenueId();
-        Utils.launchDetailActivity(mActivity, venueId, view);
+        Cursor cursor = mAdapter.getCursor();
+        if (cursor != null) {
+            cursor.moveToPosition(position);
+            Favorite favorite = cupboard().withCursor(cursor).get(Favorite.class);
+            String venueId = favorite.getVenueId();
+            Utils.launchDetailActivity(mActivity, venueId, favorite.getName(), view);
+        }
     }
 
 

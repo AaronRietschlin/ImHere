@@ -249,9 +249,12 @@ public class Utils {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static void launchDetailActivity(Activity context, String venueId, View v) {
+    public static void launchDetailActivity(Activity context, String venueId, String venueName, View v) {
         Intent intent = new Intent(context, DetailActivity.class);
         intent.putExtra(AppData.Extras.VENUE_ID, venueId);
+        if (!TextUtils.isEmpty(venueName)) {
+            intent.putExtra(AppData.Extras.VENUE_NAME, venueName);
+        }
         if (Utils.isJellyBeanOrGreater() && v != null) {
             ActivityOptions opts = ActivityOptions.makeScaleUpAnimation(v, (int) v.getX(), (int) v.getY(), v.getWidth(), v.getHeight());
             context.startActivity(intent, opts.toBundle());

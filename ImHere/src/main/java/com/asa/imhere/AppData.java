@@ -11,6 +11,7 @@ public class AppData {
 		public static final String LONGITUDE = "lon";
 
 		public static final String VENUE_ID = "venue_id";
+        public static final String VENUE_NAME = "venue_name";
 	}
 
 	/**
