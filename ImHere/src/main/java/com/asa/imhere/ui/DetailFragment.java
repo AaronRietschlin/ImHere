@@ -49,17 +49,26 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.InjectView;
+
 public class DetailFragment extends AsaBaseFragment implements OnConnectionFailedListener, ConnectionCallbacks, OnAddGeofencesResultListener,
         OnRemoveGeofencesResultListener {
     public final static String TAG = "DetailFragment";
 
-    private ImageView mImgVenue;
-    private CompoundButton mSwitchFav;
-    private CompoundButton mSwitchAutoCheckin;
-    private TextView mTvDescrip;
-    private View mLayoutAutoCheckin;
-    private View mLayoutSpinners;
-    private Spinner mSpinnerRadius;
+    @InjectView(R.id.detail_venue_img)
+    ImageView mImgVenue;
+    @InjectView(R.id.detail_switch_fav)
+    CompoundButton mSwitchFav;
+    @InjectView(R.id.detail_switch_auto_checkin)
+    CompoundButton mSwitchAutoCheckin;
+    @InjectView(R.id.detail_text_descrip)
+    TextView mTvDescrip;
+    @InjectView(R.id.detail_layout_auto_checkin)
+    View mLayoutAutoCheckin;
+    @InjectView(R.id.detail_layout_spinners)
+    View mLayoutSpinners;
+    @InjectView(R.id.detail_spinner_auto_radius)
+    Spinner mSpinnerRadius;
     // private Spinner mSpinnerDuration;
 
     private String mVenueId;
@@ -140,13 +149,6 @@ public class DetailFragment extends AsaBaseFragment implements OnConnectionFaile
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        mImgVenue = (ImageView) v.findViewById(R.id.detail_venue_img);
-        mSwitchFav = (CompoundButton) v.findViewById(R.id.detail_switch_fav);
-        mSwitchAutoCheckin = (CompoundButton) v.findViewById(R.id.detail_switch_auto_checkin);
-        mTvDescrip = (TextView) v.findViewById(R.id.detail_text_descrip);
-        mLayoutAutoCheckin = v.findViewById(R.id.detail_layout_auto_checkin);
-        mLayoutSpinners = v.findViewById(R.id.detail_layout_spinners);
-        mSpinnerRadius = (Spinner) v.findViewById(R.id.detail_spinner_auto_radius);
         // mSpinnerDuration = (Spinner)
         // v.findViewById(R.id.detail_spinner_auto_duration);
 
