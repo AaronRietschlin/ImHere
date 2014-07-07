@@ -49,6 +49,7 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class DetailFragment extends AsaBaseFragment implements OnConnectionFailedListener, ConnectionCallbacks, OnAddGeofencesResultListener,
@@ -148,6 +149,7 @@ public class DetailFragment extends AsaBaseFragment implements OnConnectionFaile
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detail, container, false);
+        ButterKnife.inject(this, v);
 
         // mSpinnerDuration = (Spinner)
         // v.findViewById(R.id.detail_spinner_auto_duration);
