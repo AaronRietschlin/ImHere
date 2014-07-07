@@ -1,6 +1,7 @@
 package com.asa.imhere.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import com.asa.imhere.AsaBaseAdapter;
 import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.R;
 import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
+import com.asa.imhere.foursquare.FsUtils;
 import com.asa.imhere.foursquare.FsVenue;
 import com.asa.imhere.jobs.FetchVenuesExploreJob;
 import com.asa.imhere.model.DatabaseQueries;
@@ -218,9 +220,13 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Nameable venue = (Nameable) mAdapter.getItem(position);
         String venueId = venue.getVenueId();
-        Utils.launchDetailActivity(mActivity, venueId, venue.getName(), view);
+        String url = FsUtils.buildViewVenueUrl(venueId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+        // TODO - As of July 6th, I am simplifying the experience by taking the user to the "View a venue" url
+        // Before, I was using the below code to launch the details fragment. For now, I am removing this to keep it simple.
+//        Utils.launchDetailActivity(mActivity, venueId, venue.getName(), view);
     }
-
 
     @Override
     public void onAddButtonClicked(Nameable venue) {
