@@ -23,11 +23,9 @@ import com.asa.imhere.AppData;
 import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.GeofenceIntentService;
 import com.asa.imhere.R;
-import com.asa.imhere.foursquare.FsPhoto;
-import com.asa.imhere.foursquare.FsVenue;
-import com.asa.imhere.foursquare.FsVenue.VenuePhotoGroup;
-import com.asa.imhere.foursquare.FsVenue.VenuePhotoItem;
 import com.asa.imhere.jobs.FetchVenueDetailJob;
+import com.asa.imhere.lib.foursquare.FsPhoto;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
 import com.asa.imhere.otto.BusProvider;
@@ -242,11 +240,11 @@ public class DetailFragment extends AsaBaseFragment implements OnConnectionFaile
      * Sets the image
      */
     private void setImage() {
-        VenuePhotoGroup photoGroup = mVenue.getPhotos();
+        FsVenue.VenuePhotoGroup photoGroup = mVenue.getPhotos();
         if (photoGroup != null) {
-            List<VenuePhotoItem> photoItemList = photoGroup.getItems();
+            List<FsVenue.VenuePhotoItem> photoItemList = photoGroup.getItems();
             if (photoItemList != null && photoItemList.size() > 0) {
-                VenuePhotoItem photoItem = photoItemList.get(0);
+                FsVenue.VenuePhotoItem photoItem = photoItemList.get(0);
                 if (photoItem != null) {
                     List<FsPhoto> photoList = photoItem.getItems();
                     if (photoList != null && photoList.size() > 0) {

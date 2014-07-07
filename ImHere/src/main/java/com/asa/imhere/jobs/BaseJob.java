@@ -6,8 +6,8 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.asa.imhere.IHApplication;
-import com.asa.imhere.foursquare.FsException;
-import com.asa.imhere.foursquare.FsMeta;
+import com.asa.imhere.lib.foursquare.FsException;
+import com.asa.imhere.lib.foursquare.FsMeta;
 import com.asa.imhere.model.responses.BaseResponseItem;
 import com.asa.imhere.otto.BusProvider;
 import com.crashlytics.android.Crashlytics;

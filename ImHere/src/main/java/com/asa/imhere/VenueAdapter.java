@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.asa.imhere.model.Nameable;
+import com.asa.imhere.lib.model.Nameable;
 import com.asa.imhere.utils.Utils;
 
 public class VenueAdapter extends AsaBaseAdapter<Nameable> implements OnClickListener {

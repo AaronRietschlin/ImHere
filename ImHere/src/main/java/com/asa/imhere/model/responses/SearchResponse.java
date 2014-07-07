@@ -1,9 +1,9 @@
 package com.asa.imhere.model.responses;
 
-import java.util.List;
-
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 public class SearchResponse extends BaseResponseItem {
 

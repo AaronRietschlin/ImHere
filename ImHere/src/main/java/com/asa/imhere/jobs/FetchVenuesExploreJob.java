@@ -2,9 +2,9 @@ package com.asa.imhere.jobs;
 
 import com.asa.imhere.IHApplication;
 import com.asa.imhere.SerializationProvider;
-import com.asa.imhere.foursquare.ExploreGroup;
-import com.asa.imhere.foursquare.Foursquare;
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.ExploreGroup;
+import com.asa.imhere.lib.foursquare.FsUtils;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.ExploreVenuesRetreived;
 import com.asa.imhere.utils.LogUtils;
@@ -45,7 +45,7 @@ public class FetchVenuesExploreJob extends BaseJob {
             return;
         }
 
-        String url = Foursquare.constructExploreUrl(null, mLatitude, mLongitude, IHApplication.getContext());
+        String url = FsUtils.constructExploreUrl(null, mLatitude, mLongitude, IHApplication.getContext());
         String result = Ion.with(IHApplication.getContext(), url).group(TAG).asString().get();
         if (result == null) {
             throwException("No result found for request: " + url);

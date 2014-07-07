@@ -11,8 +11,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.asa.imhere.AppData;
-import com.asa.imhere.foursquare.FsMeta;
 import com.asa.imhere.lib.ImHereUtils;
+import com.asa.imhere.lib.foursquare.FsMeta;
 import com.asa.imhere.model.responses.BaseResponseItem;
 import com.asa.imhere.ui.DetailActivity;
 import com.crashlytics.android.Crashlytics;

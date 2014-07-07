@@ -25,8 +25,8 @@ import com.asa.imhere.AppData;
 import com.asa.imhere.R;
 import com.asa.imhere.SearchSuggestionContentProvider;
 import com.asa.imhere.VenueAdapter;
-import com.asa.imhere.foursquare.Foursquare;
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.FsUtils;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.responses.SearchResponse;
 import com.asa.imhere.utils.PreferenceUtils;
 import com.asa.imhere.utils.Utils;
@@ -114,7 +114,7 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
         if (mLastRequest != null && !mLastRequest.isCancelled() && !mLastRequest.isDone()) {
             mLastRequest.cancel(true);
         }
-        String url = Foursquare.constructSearchUrl(query, mLat, mLon, getApplicationContext());
+        String url = FsUtils.constructSearchUrl(query, mLat, mLon, getApplicationContext());
         setProgressBarIndeterminateVisibility(true);
         mLastRequest = Ion.with(this, url).as(new TypeToken<SearchResponse>() {
         }).setCallback(this);

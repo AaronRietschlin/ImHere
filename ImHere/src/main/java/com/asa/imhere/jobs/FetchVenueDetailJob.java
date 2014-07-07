@@ -2,8 +2,8 @@ package com.asa.imhere.jobs;
 
 import android.util.Log;
 
-import com.asa.imhere.foursquare.Foursquare;
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.FsUtils;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.responses.VenueResponse;
 import com.asa.imhere.otto.VenueRetreivedEvent;
 import com.asa.imhere.utils.LogUtils;
@@ -29,7 +29,7 @@ public class FetchVenueDetailJob extends BaseJob {
 
     @Override
     public void onRun() throws Throwable {
-        String url = Foursquare.constructVenueUrl(mVenueId, getContext());
+        String url = FsUtils.constructVenueUrl(mVenueId, getContext());
         VenueResponse response = Ion.with(getContext(), url).group(TAG).as(new TypeToken<VenueResponse>() {
         }).get();
 

@@ -1,9 +1,9 @@
 package com.asa.imhere.model.responses;
 
-import java.util.ArrayList;
-
-import com.asa.imhere.foursquare.ExploreGroup;
+import com.asa.imhere.lib.foursquare.ExploreGroup;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 
 public class ExploreResponse extends BaseResponseItem {
 

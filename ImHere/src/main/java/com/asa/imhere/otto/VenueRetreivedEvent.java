@@ -1,6 +1,6 @@
 package com.asa.imhere.otto;
 
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.FsVenue;
 
 public class VenueRetreivedEvent {
 

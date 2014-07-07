@@ -2,8 +2,8 @@ package com.asa.imhere.model.responses;
 
 import java.util.List;
 
-import com.asa.imhere.foursquare.FsMeta;
-import com.asa.imhere.foursquare.FsNotification;
+import com.asa.imhere.lib.foursquare.FsMeta;
+import com.asa.imhere.lib.foursquare.FsNotification;
 import com.google.gson.annotations.SerializedName;
 
 public class BaseResponseItem {

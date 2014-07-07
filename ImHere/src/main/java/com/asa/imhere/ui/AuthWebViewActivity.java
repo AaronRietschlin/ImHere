@@ -8,7 +8,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.asa.imhere.R;
-import com.asa.imhere.foursquare.Foursquare;
+import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.utils.PreferenceUtils;
 
 /**
@@ -33,7 +33,7 @@ public class AuthWebViewActivity extends AsaBaseActivity {
 					String accessToken = url.substring(start + fragment.length(), url.length());
 					PreferenceUtils.setAuthToken(getApplicationContext(), accessToken);
 				}
-				if (url.startsWith(Foursquare.CALLBACK_URL)) {
+				if (url.startsWith(FsUtils.CALLBACK_URL)) {
 					setResult(Activity.RESULT_OK);
 					finish();
 				}
@@ -44,6 +44,6 @@ public class AuthWebViewActivity extends AsaBaseActivity {
 				url.length();
 			}
 		});
-		webView.loadUrl(Foursquare.URL_AUTH);
+		webView.loadUrl(FsUtils.URL_AUTH);
 	}
 }

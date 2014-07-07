@@ -3,12 +3,11 @@ package com.asa.imhere.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.asa.imhere.foursquare.FsLocation;
-import com.asa.imhere.foursquare.FsVenue;
+import com.asa.imhere.lib.foursquare.FsLocation;
+import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.model.Nameable;
 import com.google.android.gms.location.Geofence;
 import com.google.gson.annotations.SerializedName;
-
-import nl.qbusict.cupboard.annotation.Column;
 
 public class Favorite implements Nameable, Parcelable {
     public static final String TABLE = "favorite_venues";
