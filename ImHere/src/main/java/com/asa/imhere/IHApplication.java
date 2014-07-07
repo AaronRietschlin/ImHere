@@ -15,11 +15,6 @@ public class IHApplication extends Application {
 	public  final static String TAG_PREFIX = "IHApplication_";
 
 	public static final boolean DEBUG = true;
-	/**
-	 * The versioning date that is required by the API.
-	 * https://developer.foursquare.com/overview/versioning
-	 */
-	public static final String VERSIONING_DATE = "20140113";
 
 	private static Context sContext;
     private static IHApplication sInstance;
