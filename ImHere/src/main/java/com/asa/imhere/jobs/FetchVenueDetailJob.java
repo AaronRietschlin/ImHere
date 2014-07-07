@@ -6,20 +6,22 @@ import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.responses.VenueResponse;
 import com.asa.imhere.otto.VenueRetreivedEvent;
-import com.asa.imhere.utils.LogUtils;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.ion.Ion;
 import com.path.android.jobqueue.Params;
 
+import timber.log.Timber;
+
 public class FetchVenueDetailJob extends BaseJob {
-    private static final String TAG = LogUtils.makeLogTag("FetchVenueDetailJob");
+    private static final String TAG = "FetchVenueDetailJob";
 
     private String mVenueId;
 
     public FetchVenueDetailJob(String venueId) {
         super(new Params(Priority.LOW).requireNetwork().groupBy(TAG));
         mVenueId = venueId;
+        Timber.tag(TAG);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class FetchVenueDetailJob extends BaseJob {
 
     @Override
     protected void onCancel() {
-        LogUtils.LOGD(TAG, "");
+        Timber.d("");
     }
 
     @Override

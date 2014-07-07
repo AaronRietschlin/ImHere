@@ -1,15 +1,11 @@
 package com.asa.imhere;
 
-import com.asa.imhere.utils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
-/**
- * Created by Aaron on 1/16/14.
- */
 public class SerializationProvider<T> {
-    private static final String TAG = LogUtils.makeLogTag("DhSerializeProvider");
+    private static final String TAG = "SerializationProvider";
 
     private Gson mGson;
 

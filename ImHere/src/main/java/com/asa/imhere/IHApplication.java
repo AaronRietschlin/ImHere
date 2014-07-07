@@ -4,49 +4,58 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.asa.imhere.utils.LogUtils;
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.config.Configuration;
 import com.path.android.jobqueue.log.CustomLogger;
 
+import timber.log.Timber;
+
 public class IHApplication extends Application {
-	public  final static String TAG_PREFIX = "IHApplication_";
+    public final static String TAG_PREFIX = "IHApplication_";
 
-	public static final boolean DEBUG = true;
+    public static final boolean DEBUG = true;
 
-	private static Context sContext;
+    private static Context sContext;
     private static IHApplication sInstance;
     private JobManager mJobManager;
 
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
+    @Override
+    public void onCreate() {
+        super.onCreate();
         Crashlytics.start(this);
 
         sInstance = this;
-		sContext = getApplicationContext();
+        sContext = getApplicationContext();
         configureJobManager();
 
-		if (DEBUG) {
-			Ion.getDefault(sContext).setLogging(TAG_PREFIX, Log.VERBOSE);
-		}
-	}
+        if (DEBUG) {
+            Ion.getDefault(sContext).setLogging(TAG_PREFIX, Log.VERBOSE);
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new CrashReportingTree());
+        }
 
-    public static IHApplication getInstance(){
+    }
+
+    public static IHApplication getInstance() {
         return sInstance;
     }
 
-	public static final Context getContext() {
-		return sContext;
-	}
+    public static final Context getContext() {
+        return sContext;
+    }
 
     private void configureJobManager() {
         Configuration configuration = new Configuration.Builder(this)
                 .customLogger(new CustomLogger() {
                     private static final String TAG = TAG_PREFIX + "Jobs_";
+                    {
+                        Timber.tag(TAG);
+                    }
+
                     @Override
                     public boolean isDebugEnabled() {
                         return DEBUG;
@@ -54,17 +63,17 @@ public class IHApplication extends Application {
 
                     @Override
                     public void d(String text, Object... args) {
-                        LogUtils.LOGD(TAG, String.format(text, args));
+                        Timber.d(String.format(text, args));
                     }
 
                     @Override
                     public void e(Throwable t, String text, Object... args) {
-                        LogUtils.LOGE(TAG, String.format(text, args), t);
+                        Timber.e(String.format(text, args), t);
                     }
 
                     @Override
                     public void e(String text, Object... args) {
-                        LogUtils.LOGE(TAG, String.format(text, args));
+                        Timber.e(String.format(text, args));
                     }
                 }).build();
 //                .minConsumerCount(1)//always keep at least one consumer alive
@@ -77,6 +86,31 @@ public class IHApplication extends Application {
 
     public JobManager getJobManager() {
         return mJobManager;
+    }
+
+    /**
+     * A tree which logs important information for crash reporting.
+     */
+    private static class CrashReportingTree extends Timber.HollowTree {
+        @Override
+        public void i(String message, Object... args) {
+            Crashlytics.log(String.format(message, args));
+        }
+
+        @Override
+        public void i(Throwable t, String message, Object... args) {
+            i(message, args); // Just add to the log.
+        }
+
+        @Override
+        public void e(String message, Object... args) {
+            i("ERROR: " + message, args); // Just add to the log.
+        }
+
+        @Override
+        public void e(Throwable t, String message, Object... args) {
+            e(message, args);
+        }
     }
 
 }

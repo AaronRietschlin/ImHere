@@ -7,15 +7,16 @@ import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.ExploreVenuesRetreived;
-import com.asa.imhere.utils.LogUtils;
 import com.koushikdutta.ion.Ion;
 import com.path.android.jobqueue.Params;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import timber.log.Timber;
+
 public class FetchVenuesExploreJob extends BaseJob {
-    private static final String TAG = LogUtils.makeLogTag("FetchVenuesExploreJob");
+    private static final String TAG = "FetchVenuesExploreJob";
     private static final AtomicInteger jobCounter = new AtomicInteger(0);
     private final int id;
 
@@ -30,6 +31,8 @@ public class FetchVenuesExploreJob extends BaseJob {
 
         mLatitude = latitude;
         mLongitude = longitude;
+
+        Timber.tag(TAG);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class FetchVenuesExploreJob extends BaseJob {
 
     @Override
     protected void onCancel() {
-        LogUtils.LOGD(TAG, "Test");
+        Timber.d("Test");
     }
 
     @Override

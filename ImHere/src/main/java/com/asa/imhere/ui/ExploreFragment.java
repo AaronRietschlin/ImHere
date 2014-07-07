@@ -35,7 +35,6 @@ import com.asa.imhere.otto.LocationNeededEvent;
 import com.asa.imhere.otto.LocationProvidedEvent;
 import com.asa.imhere.otto.LocationSavedDataChanged;
 import com.asa.imhere.otto.LocationServicesConnectedEvent;
-import com.asa.imhere.utils.LogUtils;
 import com.asa.imhere.utils.PreferenceUtils;
 import com.asa.imhere.utils.Utils;
 import com.koushikdutta.ion.Ion;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -74,6 +74,12 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         ExploreFragment frag = new ExploreFragment();
 
         return frag;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Timber.tag(TAG);
     }
 
     @Override
@@ -415,7 +421,7 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
                 // Save
                 fav = Favorite.constructFromVenue(venue);
                 Uri uri = DatabaseQueries.saveFavorite(mContext, fav);
-                LogUtils.LOGD(TAG, "Uri null: " + (uri == null));
+                Timber.d("Uri null: " + (uri == null));
             } else {
                 DatabaseQueries.deleteFavorite(mContext, fav);
             }
