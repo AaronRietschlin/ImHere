@@ -8,6 +8,8 @@ import com.google.android.gms.location.Geofence;
 
 public class Favorite extends IhFavorite {
 
+    private static final float DEFAULT_RADIUS = 50F;
+
     public static Favorite constructFromVenue(FsVenue venue) {
         Favorite fav = new Favorite();
         fav.setRemoteId(venue.getVenueId());
@@ -30,6 +32,9 @@ public class Favorite extends IhFavorite {
 
     public Geofence constructGeofence() {
         Geofence.Builder builder = new Geofence.Builder();
+        if(radius == 0){
+            radius = DEFAULT_RADIUS;
+        }
         builder.setCircularRegion(latitude, longitude, radius).setRequestId(venueId).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE);
         return builder.build();

@@ -20,7 +20,7 @@ import com.path.android.jobqueue.Params;
 public abstract class BaseJob extends Job {
 
     protected Handler mHandlerMain;
-    private Context mContext;
+    protected Context mContext;
 
     protected BaseJob(Params params) {
         super(params);

@@ -60,24 +60,37 @@ public class LocationUtils {
 		}
 	}
 
-	public static boolean servicesConnected(Activity activity, FragmentManager fragmentManager) {
-		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
+    public static boolean servicesConnected(Activity activity, FragmentManager fragmentManager) {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
 
-		if (ConnectionResult.SUCCESS == resultCode) {
-			// In debug mode, log the status
-			Log.d(TAG, "Google Play services is available");
-			return true;
-			// Google Play services was not available for some reason
-		} else {
-			// Display an error dialog
-			Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, activity, 0);
-			if (dialog != null) {
-				ErrorDialogFragment errorFragment = new ErrorDialogFragment();
-				errorFragment.setDialog(dialog);
-				errorFragment.show(fragmentManager, TAG);
-			}
-			return false;
-		}
-	}
+        if (ConnectionResult.SUCCESS == resultCode) {
+            // In debug mode, log the status
+            Log.d(TAG, "Google Play services is available");
+            return true;
+            // Google Play services was not available for some reason
+        } else {
+            // Display an error dialog
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, activity, 0);
+            if (dialog != null) {
+                ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+                errorFragment.setDialog(dialog);
+                errorFragment.show(fragmentManager, TAG);
+            }
+            return false;
+        }
+    }
+
+
+    public static boolean servicesConnected(Context context) {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+        if (ConnectionResult.SUCCESS == resultCode) {
+            // In debug mode, log the status
+            Log.d(TAG, "Google Play services is available");
+            return true;
+            // Google Play services was not available for some reason
+        } else {
+            return false;
+        }
+    }
 
 }

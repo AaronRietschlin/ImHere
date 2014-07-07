@@ -2,6 +2,7 @@ package com.asa.imhere;
 
 import android.app.Application;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -52,6 +53,7 @@ public class IHApplication extends Application {
         Configuration configuration = new Configuration.Builder(this)
                 .customLogger(new CustomLogger() {
                     private static final String TAG = TAG_PREFIX + "Jobs_";
+
                     {
                         Timber.tag(TAG);
                     }
@@ -94,7 +96,9 @@ public class IHApplication extends Application {
     private static class CrashReportingTree extends Timber.HollowTree {
         @Override
         public void i(String message, Object... args) {
-            Crashlytics.log(String.format(message, args));
+            if (!TextUtils.isEmpty(message)) {
+                Crashlytics.log(String.format(message, args));
+            }
         }
 
         @Override
@@ -109,6 +113,7 @@ public class IHApplication extends Application {
 
         @Override
         public void e(Throwable t, String message, Object... args) {
+            Crashlytics.logException(t);
             e(message, args);
         }
     }

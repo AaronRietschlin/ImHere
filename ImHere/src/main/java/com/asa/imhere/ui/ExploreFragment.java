@@ -22,6 +22,7 @@ import com.asa.imhere.AsaBaseFragment;
 import com.asa.imhere.R;
 import com.asa.imhere.VenueAdapter.OnAddButtonClickListener;
 import com.asa.imhere.jobs.FetchVenuesExploreJob;
+import com.asa.imhere.jobs.GeofenceJob;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.lib.model.Nameable;
@@ -105,20 +106,8 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
             setupAdapter();
             getFavorites(false);
         } else {
-
+            // TODO - Restore from previous state.
         }
-
-        // This use to be here. Working on switching it out and waiting on
-        // callbacks from the activity that the location service was connected.
-        // if (savedInstanceState == null) {
-        // makeRequest();
-        // } else {
-        // if (mAdapter.getCount() > 0) {
-        // Utils.setViewVisibility(mLoadingLayout, false);
-        // } else {
-        // makeRequest();
-        // }
-        // }
     }
 
     private void getFavorites(boolean notify) {
@@ -133,8 +122,6 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
         mAdapter = new VenueAdapter(mActivity);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
-
-//        mAdapter.setOnAddButtonClickListener(this);
     }
 
     @Override
@@ -417,14 +404,18 @@ public class ExploreFragment extends AsaBaseFragment implements OnAddButtonClick
             SQLiteDatabase db = new IHSqlOpenHelper(mContext).getWritableDatabase();
             FsVenue venue = params[0];
             Favorite fav = DatabaseQueries.getFavoriteByVenueId(mContext, venue.getVenueId());
+            GeofenceJob.RequestType requestType;
             if (fav == null || fav.getId() == null) {
                 // Save
                 fav = Favorite.constructFromVenue(venue);
                 Uri uri = DatabaseQueries.saveFavorite(mContext, fav);
                 Timber.d("Uri null: " + (uri == null));
+                requestType = GeofenceJob.RequestType.ADD;
             } else {
                 DatabaseQueries.deleteFavorite(mContext, fav);
+                requestType = GeofenceJob.RequestType.REMOVE_IDS;
             }
+            mJobManager.addJobInBackground(new GeofenceJob(venue, requestType));
             return null;
         }
 
