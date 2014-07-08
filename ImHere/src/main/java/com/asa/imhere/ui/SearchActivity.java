@@ -32,6 +32,7 @@ import com.asa.imhere.utils.PreferenceUtils;
 import com.asa.imhere.utils.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
@@ -41,7 +42,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-public class SearchActivity extends Activity implements OnActionExpandListener, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, FutureCallback<SearchResponse>,
+import timber.log.Timber;
+
+public class SearchActivity extends Activity implements OnActionExpandListener, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, FutureCallback<String>,
         OnItemClickListener {
     private final static String TAG = "SearchActivity";
 
@@ -53,13 +56,13 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
     private VenueAdapter mAdapter;
 
     private ActionBar mActionBar;
-    private Gson mGson;
+    private Gson mGson = new Gson();
 
     private double mLat;
     private double mLon;
     private boolean mIsCoordsSet;
 
-    private Future<SearchResponse> mLastRequest;
+    private Future<String> mLastRequest;
 
     // TODO - Use Volley or Ion?
 
@@ -68,6 +71,7 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_explore);
+        Timber.tag(TAG);
 
         mListView = (ListView) findViewById(R.id.explore_list);
         mLayoutLoading = findViewById(R.id.loading);
@@ -116,8 +120,7 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
         }
         String url = FsUtils.constructSearchUrl(query, mLat, mLon, getApplicationContext());
         setProgressBarIndeterminateVisibility(true);
-        mLastRequest = Ion.with(this, url).as(new TypeToken<SearchResponse>() {
-        }).setCallback(this);
+        mLastRequest = Ion.with(this, url).asString().setCallback(this);
     }
 
     @Override
@@ -235,9 +238,14 @@ public class SearchActivity extends Activity implements OnActionExpandListener, 
     }
 
     @Override
-    public void onCompleted(Exception e, SearchResponse result) {
+    public void onCompleted(Exception e, String result) {
         Log.d(TAG, "Ion request completed.");
-        handleResponse(result);
+        try {
+            SearchResponse response = mGson.fromJson(result, SearchResponse.class);
+                    handleResponse(response);
+        }catch(JsonParseException parseException){
+            Timber.e(parseException, "");
+        }
         setProgressBarIndeterminateVisibility(false);
     }
 

@@ -5,6 +5,7 @@ import com.asa.imhere.SerializationProvider;
 import com.asa.imhere.lib.foursquare.ExploreGroup;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.jobs.Priority;
 import com.asa.imhere.model.responses.ExploreResponse;
 import com.asa.imhere.otto.ExploreVenuesRetreived;
 import com.koushikdutta.ion.Ion;

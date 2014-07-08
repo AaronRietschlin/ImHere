@@ -1,6 +1,7 @@
 package com.asa.imhere.model.responses;
 
 import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.model.responses.BaseResponseItem;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;

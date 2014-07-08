@@ -28,7 +28,7 @@ import com.asa.imhere.lib.foursquare.FsPhoto;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
-import com.asa.imhere.otto.BusProvider;
+import com.asa.imhere.lib.otto.BusProvider;
 import com.asa.imhere.otto.VenueRetreivedEvent;
 import com.asa.imhere.utils.LocationUtils;
 import com.asa.imhere.utils.Utils;

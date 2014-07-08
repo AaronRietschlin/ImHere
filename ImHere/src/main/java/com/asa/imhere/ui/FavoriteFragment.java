@@ -26,7 +26,7 @@ import com.asa.imhere.lib.model.Nameable;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
 import com.asa.imhere.model.ImHereContract;
-import com.asa.imhere.otto.BusProvider;
+import com.asa.imhere.lib.otto.BusProvider;
 import com.asa.imhere.otto.FavoriteDeletedEvent;
 import com.asa.imhere.utils.Utils;
 

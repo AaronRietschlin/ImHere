@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.asa.imhere.AppData;
 import com.asa.imhere.GeofenceIntentService;
 import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.jobs.Priority;
 import com.asa.imhere.model.Favorite;
 import com.asa.imhere.utils.LocationUtils;
 import com.asa.imhere.utils.Utils;

@@ -1,31 +1,30 @@
-package com.asa.imhere.jobs;
+package com.asa.imhere.lib.jobs;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
-import com.asa.imhere.IHApplication;
 import com.asa.imhere.lib.foursquare.FsException;
 import com.asa.imhere.lib.foursquare.FsMeta;
 import com.asa.imhere.lib.model.responses.BaseResponseItem;
 import com.asa.imhere.lib.otto.BusProvider;
-import com.crashlytics.android.Crashlytics;
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
+
+import timber.log.Timber;
 
 /**
  * Created by Aaron on 1/16/14.
  */
-public abstract class BaseJob extends Job {
+public abstract class ContextJob extends Job {
 
     protected Handler mHandlerMain;
     protected Context mContext;
 
-    protected BaseJob(Params params) {
+    protected ContextJob(Params params, Context context) {
         super(params);
         mHandlerMain = new Handler(Looper.getMainLooper());
-        mContext = IHApplication.getContext();
+        mContext = context.getApplicationContext();
     }
 
     /**
@@ -43,9 +42,6 @@ public abstract class BaseJob extends Job {
     }
 
     protected Context getContext() {
-        if (mContext == null) {
-            mContext = IHApplication.getContext();
-        }
         return mContext;
     }
 
@@ -72,12 +68,12 @@ public abstract class BaseJob extends Job {
     /** Creates an exception with the given message, posts it to Crashlytics and then throws it.*/
     protected void throwException(String message) throws Throwable {
         Exception e = new Exception(message);
-        Crashlytics.logException(e);
+        Timber.e(e, "");
         throw e;
     }
 
     /**
-     * Throws a {@link com.asa.imhere.foursquare.FsException} if it's not valid.
+     * Throws a {@link com.asa.imhere.lib.foursquare.FsException} if it's not valid.
      *
      * @param item
      * @param tag
@@ -96,10 +92,9 @@ public abstract class BaseJob extends Job {
         int code = meta.getCode();
         if (code != FsMeta.Code.OK) {
             // Log to crashlytics what happened.
-            Crashlytics.log(Log.WARN, tag,
-                    "Error code: " + code + "; Error type: " + meta.getErrorType() + "; Error Detail: " + meta.getErrorDetail() + "; Error Message: " + meta.getErrorMessage());
+            Timber.e("Error code: " + code + "; Error type: " + meta.getErrorType() + "; Error Detail: " + meta.getErrorDetail() + "; Error Message: " + meta.getErrorMessage());
             if (code == FsMeta.Code.BAD_RESPONSE) {
-                Crashlytics.log(Log.WARN, tag, "An invalid auth occurred.");
+                Timber.e("An invalid auth occurred.");
             }
             // TODO handle the rest of the possible error responses.
             throw new FsException(meta);

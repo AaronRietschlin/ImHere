@@ -1,8 +1,12 @@
 package com.asa.imhere.lib.foursquare;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import com.asa.imhere.lib.FsPreferenceUtils;
+import com.google.gson.JsonObject;
 
 public class FsUtils {
 
@@ -30,6 +34,9 @@ public class FsUtils {
     public static final String PATH_VENUES = "venues/";
     public static final String PATH_EXPLORE = "explore/";
     public static final String PATH_SEARCH = "search/";
+    public static final String PATH_CHECKINS = "checkins/";
+
+    public static final String PATH_ADD = "add/";
 
     public static String constructExploreUrl(String near, double lat, double lon, Context context) {
         String url = URL_API_V2 + PATH_VENUES + PATH_EXPLORE;
@@ -63,6 +70,50 @@ public class FsUtils {
         url += appendAccessParams(url, context);
         url += appendApiVersion();
         return url;
+    }
+
+    public static String constructCheckinsUrl(Context context, String venueId, long lat, long lng,
+                                              int llAcc, String broadcast, String shout) {
+        String url = URL_API_V2 + PATH_CHECKINS + PATH_ADD;
+        url += appendAccessParams(url, context);
+        url += appendApiVersion();
+        url += String.format("&" + FsJson.VENUE_ID + "=%s", venueId);
+        if(lat > 0 && lng > 0){
+            if(llAcc <= 0){
+                llAcc = 1;
+            }
+            url += String.format("&" + FsJson.LAT_LNG + "=%s,%s&" + FsJson.LAT_LNG_ACCURACY + "=%s", String.valueOf(lat),
+                    String.valueOf(lng), String.valueOf(llAcc));
+        }
+        if(!TextUtils.isEmpty(shout)){
+            url += String.format("&" + FsJson.SHOUT + "=%s", shout);
+        }
+        if(!TextUtils.isEmpty(broadcast)){
+            url += String.format("&" + FsJson.BROADCAST + "=%s", broadcast);
+        }
+        return url;
+    }
+
+    public static JsonObject buildCheckinsJsonParams(String venueId, long lat, long lng, int llAcc,
+                                                     String broadcast, String shout) {
+        JsonObject params = new JsonObject();
+        params.addProperty(FsJson.VENUE_ID, venueId);
+        if (lat != 0 && lng != 0) {
+            // TODO - Make sure it's only 1 decimal place.
+            String ll = lat + "," + lng;
+            params.addProperty(FsJson.LAT_LNG, ll);
+            if(llAcc <= 0){
+                llAcc = 1;
+            }
+            params.addProperty(FsJson.LAT_LNG_ACCURACY, llAcc);
+        }
+        if(!TextUtils.isEmpty(shout)){
+            params.addProperty(FsJson.SHOUT, shout);
+        }
+        if(!TextUtils.isEmpty(broadcast)){
+            params.addProperty(FsJson.BROADCAST, broadcast);
+        }
+        return params;
     }
 
     /**
@@ -109,4 +160,7 @@ public class FsUtils {
         return VIEW_VENUE_URL + venueId;
     }
 
+    public static Intent buildViewVenueIntent(String venueId) {
+        return new Intent(Intent.ACTION_VIEW, Uri.parse(buildViewVenueUrl(venueId)));
+    }
 }

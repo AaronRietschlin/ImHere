@@ -1,4 +1,4 @@
-package com.asa.imhere.otto;
+package com.asa.imhere.lib.otto;
 
 import com.squareup.otto.Bus;
 

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.jobs.Priority;
 import com.asa.imhere.model.responses.VenueResponse;
 import com.asa.imhere.otto.VenueRetreivedEvent;
 import com.crashlytics.android.Crashlytics;

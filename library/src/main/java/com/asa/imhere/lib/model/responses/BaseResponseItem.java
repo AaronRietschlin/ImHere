@@ -1,4 +1,4 @@
-package com.asa.imhere.model.responses;
+package com.asa.imhere.lib.model.responses;
 
 import java.util.List;
 

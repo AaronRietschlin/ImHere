@@ -1,4 +1,4 @@
-package com.asa.imhere.jobs;
+package com.asa.imhere.lib.jobs;
 
 public class Priority {
     public static int LOW = 0;
