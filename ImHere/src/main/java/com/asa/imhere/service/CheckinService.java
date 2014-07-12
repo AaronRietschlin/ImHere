@@ -8,6 +8,11 @@ import android.text.TextUtils;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.notifications.CheckinNotification;
+import com.crashlytics.android.Crashlytics;
+import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.Response;
+
+import java.util.concurrent.ExecutionException;
 
 import timber.log.Timber;
 
@@ -20,13 +25,13 @@ public class CheckinService extends IntentService {
         super(TAG);
     }
 
-    public static Intent getIntent(Context context, String venueId){
+    public static Intent getIntent(Context context, String venueId) {
         Intent intent = new Intent(context, CheckinService.class);
         intent.putExtra(EXTRA_VENUE_ID, venueId);
         return intent;
     }
 
-    public static Intent getIntent(Context context, FsVenue venue){
+    public static Intent getIntent(Context context, FsVenue venue) {
         Intent intent = new Intent(context, CheckinService.class);
         intent.putExtra(EXTRA_VENUE_ID, venue.getVenueId());
         return intent;
@@ -38,6 +43,12 @@ public class CheckinService extends IntentService {
 
     public static void startService(Context context, FsVenue venue) {
         context.startService(getIntent(context, venue));
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Timber.tag(TAG);
     }
 
     @Override
@@ -54,12 +65,46 @@ public class CheckinService extends IntentService {
         // TODO - maybe not cancel until it's done?
         CheckinNotification.cancel(getApplicationContext());
         String url = FsUtils.constructCheckinsUrl(getApplicationContext(), venueId, -1L, -1L, -1, null, null);
-        Timber.d("URL (%s).", url);
+        try {
+            Response<String> response = Ion.with(getApplicationContext()).load("POST", url)
+                    .group(TAG).asString().withResponse().get();
+            if (response == null || response.getHeaders() == null) {
+                logToCrashlytics(url, null, -1);
+                Timber.e(new Exception("Checkin response was null"), "");
+                return;
+            }
+            int responseCode = response.getHeaders().getResponseCode();
+            String checkinJsonResult = response.getResult();
+            if(TextUtils.isEmpty(checkinJsonResult)){
+                logToCrashlytics(url, checkinJsonResult, responseCode);
+                Timber.e(new Exception("Checkin response was null"), "");
+                return;
+            }
+            // TODO -
+        } catch (InterruptedException e) {
+            logToCrashlytics(url, null, -1);
+            Timber.e(e, "");
+        } catch (ExecutionException e) {
+            logToCrashlytics(url, null, -1);
+            Timber.e(e, "");
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         // TODO - if getting the location, close it here.
+    }
+
+    private void logToCrashlytics(String url, String jsonResult, int responseCode){
+        if(!TextUtils.isEmpty(url)){
+            Crashlytics.setString("URL", url);
+        }
+        if(!TextUtils.isEmpty(jsonResult)){
+            Crashlytics.setString("RESULT", jsonResult);
+        }
+        if(responseCode > 0){
+            Crashlytics.setInt("RSPONSE_CODE", responseCode);
+        }
     }
 }
