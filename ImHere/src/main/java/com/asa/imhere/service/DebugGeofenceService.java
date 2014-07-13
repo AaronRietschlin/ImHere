@@ -1,18 +1,13 @@
 package com.asa.imhere.service;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.asa.imhere.lib.foursquare.FsPhoto;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.lib.wear.WearUtils;
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -20,7 +15,6 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
-import com.koushikdutta.ion.Ion;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,14 +26,18 @@ import timber.log.Timber;
 /**
  * Created by Aaron on 7/13/2014.
  */
-public class DebugGeofenceService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class DebugGeofenceService extends IntentService  {
     private static final String TAG = "DebugGeofenceService";
 
     private String mName;
     private String mImageUrl;
     private String mVenueId;
 
-    private GoogleApiClient mApiClient;
+    private GoogleApiClient mGoogleApiClient;
+
+    public DebugGeofenceService() {
+        super(TAG);
+    }
 
     public static void startService(Context context, FsVenue venue) {
         Intent intent = new Intent(context, DebugGeofenceService.class);
@@ -80,76 +78,62 @@ public class DebugGeofenceService extends Service implements GoogleApiClient.Con
         Timber.e(message);
     }
 
+
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    protected void onHandleIntent(Intent intent) {
         if (intent == null) {
-            return START_NOT_STICKY;
+            return;
         }
 
         mName = intent.getStringExtra("name");
         mVenueId = intent.getStringExtra("venueId");
         mImageUrl = intent.getStringExtra("imageUrl");
 
-        if (mApiClient == null) {
-            mApiClient = new GoogleApiClient.Builder(getApplicationContext()).addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this).addApi(Wearable.API).build();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addApi(Wearable.API).build();
         }
 
-        if (!mApiClient.isConnected() || !mApiClient.isConnecting()) {
-            mApiClient.connect();
+        if (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting()) {
+            ConnectionResult connectionResult = mGoogleApiClient.blockingConnect();
+            if(connectionResult.isSuccess()){
+                Collection<String> nodes = getNodes();
+                Iterator<String> itr = nodes.iterator();
+                while(itr.hasNext()){
+                    MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient,
+                            itr.next(), WearUtils.buildStartCheckinActivityPath(), null).await();
+                    if (!result.getStatus().isSuccess()) {
+                        Timber.e("ERROR: failed to send Message: " + result.getStatus());
+                    }else{
+                        Timber.d("Message sent.");
+                    }
+                    // Only do once.
+                    break;
+                }
+            }
         }
-
-        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mApiClient != null) {
-            mApiClient.disconnect();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
         }
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        getNodes();
-    }
+    private Collection<String> getNodes() {
+        HashSet <String>results= new HashSet<String>();
+        NodeApi.GetConnectedNodesResult nodes =
+                Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+        for (Node node : nodes.getNodes()) {
+            results.add(node.getId());
+        }
+        return results;
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        // TODO - Implement
-        stopSelf();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        // TODO - Implement
-        stopSelf();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // NO-OP
-        return null;
-    }
-
-    private void getNodes() {
-        Wearable.NodeApi.getConnectedNodes(mApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
-            @Override
-            public void onResult(NodeApi.GetConnectedNodesResult nodes) {
-                for (Node node : nodes.getNodes()) {
-                    String id = node.getId();
-                    if (!TextUtils.isEmpty(id)) {
-                        sendMessage(id);
-                    }
-                }
-                stopSelf();
-            }
-        });
     }
 
     private void sendMessage(String id){
-        Wearable.MessageApi.sendMessage(mApiClient,
+        Wearable.MessageApi.sendMessage(mGoogleApiClient,
                 id, WearUtils.buildStartCheckinActivityPath(), null).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
             @Override
             public void onResult(MessageApi.SendMessageResult result) {
