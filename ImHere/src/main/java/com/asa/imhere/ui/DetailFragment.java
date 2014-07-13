@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.asa.imhere.AppData;
 import com.asa.imhere.AsaBaseFragment;
-import com.asa.imhere.GeofenceIntentService;
+import com.asa.imhere.service.GeofenceIntentService;
 import com.asa.imhere.R;
 import com.asa.imhere.jobs.FetchVenueDetailJob;
 import com.asa.imhere.lib.foursquare.FsPhoto;

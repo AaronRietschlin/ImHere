@@ -31,6 +31,7 @@ import com.asa.imhere.otto.LocationProvidedEvent;
 import com.asa.imhere.otto.LocationServiceCheckNeededEvent;
 import com.asa.imhere.otto.LocationServicesConnectedEvent;
 import com.asa.imhere.otto.VenueEnteredEvent;
+import com.asa.imhere.service.DebugGeofenceService;
 import com.asa.imhere.utils.DebugVenueProvider;
 import com.asa.imhere.utils.LocationUtils;
 import com.asa.imhere.utils.Utils;
@@ -311,6 +312,8 @@ public class MainActivity extends AsaBaseActivity implements GooglePlayServicesC
             case R.id.action_settings:
                 DebugVenueProvider.sendDebugVenueEnteredEvent();
                 break;
+            case R.id.action_debug_custom:
+                DebugGeofenceService.startService(this, DebugVenueProvider.buildDebugJson());
         }
         return super.onOptionsItemSelected(item);
     }

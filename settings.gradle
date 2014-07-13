@@ -1,1 +1,1 @@
-include ':ImHere', ':library'
+include ':ImHere', ':library', ':wear'

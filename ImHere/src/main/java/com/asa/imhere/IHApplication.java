@@ -33,7 +33,6 @@ public class IHApplication extends Application {
         configureJobManager();
 
         if (DEBUG) {
-            Ion.getDefault(sContext).setLogging(TAG_PREFIX, Log.VERBOSE);
             Timber.plant(new Timber.DebugTree());
         } else {
             Timber.plant(new CrashReportingTree());

@@ -1,4 +1,4 @@
-package com.asa.imhere;
+package com.asa.imhere.service;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.asa.imhere.AppData;
+import com.asa.imhere.R;
+import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.model.DatabaseQueries;
 import com.asa.imhere.model.Favorite;
 import com.crashlytics.android.Crashlytics;
@@ -74,12 +77,12 @@ public class GeofenceIntentService extends IntentService {
 		GoogleAnalytics.getInstance(getApplicationContext()).getDefaultTracker().sendEvent(AppData.Analytics.EVENT_CHECKIN, AppData.Analytics.ACTION_CHECKIN, mVenueId, 0L);
 
 		// Notify the user
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-		builder.setAutoCancel(true).setContentTitle("You are entering a favorited area! Checking in!");
-		builder.setContentText("We are checking you in to : " + mGeofenceFav.getName()).setSmallIcon(R.drawable.ic_launcher);
-		Notification notif = builder.build();
-		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		manager.notify(1, notif);
+//		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+//		builder.setAutoCancel(true).setContentTitle("You are entering a favorited area! Checking in!");
+//		builder.setContentText("We are checking you in to : " + mGeofenceFav.getName()).setSmallIcon(R.drawable.ic_launcher);
+//		Notification notif = builder.build();
+//		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//		manager.notify(1, notif);
 	}
 
 	/**
