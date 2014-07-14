@@ -3,6 +3,7 @@ package com.asa.imhere.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.asa.imhere.lib.foursquare.FsPhoto;
@@ -10,11 +11,16 @@ import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.lib.wear.WearUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.koushikdutta.ion.Ion;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +32,7 @@ import timber.log.Timber;
 /**
  * Created by Aaron on 7/13/2014.
  */
-public class DebugGeofenceService extends IntentService  {
+public class DebugGeofenceService extends IntentService {
     private static final String TAG = "DebugGeofenceService";
 
     private String mName;
@@ -56,7 +62,7 @@ public class DebugGeofenceService extends IntentService  {
                     List<FsPhoto> photoList = photoItem.getItems();
                     if (photoList != null && photoList.size() > 0) {
                         FsPhoto photo = photoList.get(0);
-                        String imageUrl = photo.getFullUrl(photo.getHeight(), photo.getWidth());
+                        String imageUrl = photo.getFullUrl(photo.getHeight() / 3, photo.getWidth() / 3);
                         intent.putExtra("imageUrl", imageUrl);
                     } else {
                         setNoPhoto("Venue photo list was null or empty.");
@@ -95,19 +101,13 @@ public class DebugGeofenceService extends IntentService  {
 
         if (!mGoogleApiClient.isConnected() || !mGoogleApiClient.isConnecting()) {
             ConnectionResult connectionResult = mGoogleApiClient.blockingConnect();
-            if(connectionResult.isSuccess()){
-                Collection<String> nodes = getNodes();
-                Iterator<String> itr = nodes.iterator();
-                while(itr.hasNext()){
-                    MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient,
-                            itr.next(), WearUtils.buildStartCheckinActivityPath(), null).await();
-                    if (!result.getStatus().isSuccess()) {
-                        Timber.e("ERROR: failed to send Message: " + result.getStatus());
-                    }else{
-                        Timber.d("Message sent.");
-                    }
-                    // Only do once.
-                    break;
+            if (connectionResult.isSuccess()) {
+//                sendMessage();
+
+                if(TextUtils.isEmpty(mImageUrl)) {
+                    sendDataMessage(null);
+                }else{
+                    downloadImage();
                 }
             }
         }
@@ -122,7 +122,7 @@ public class DebugGeofenceService extends IntentService  {
     }
 
     private Collection<String> getNodes() {
-        HashSet <String>results= new HashSet<String>();
+        HashSet<String> results = new HashSet<String>();
         NodeApi.GetConnectedNodesResult nodes =
                 Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
         for (Node node : nodes.getNodes()) {
@@ -132,18 +132,47 @@ public class DebugGeofenceService extends IntentService  {
 
     }
 
-    private void sendMessage(String id){
-        Wearable.MessageApi.sendMessage(mGoogleApiClient,
-                id, WearUtils.buildStartCheckinActivityPath(), null).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
-            @Override
-            public void onResult(MessageApi.SendMessageResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    Timber.e("ERROR: failed to send Message: " + result.getStatus());
-                } else {
-                    Timber.d("Message Sent. Result status: " + result.getStatus());
-                }
+    private void sendDataMessage(Bitmap bitmap) {
+        PutDataMapRequest dataMapRequest = PutDataMapRequest.create(WearUtils.PATH_CHECKIN);
+        dataMapRequest.getDataMap().putString(WearUtils.KEY_VENUE_NAME, mName);
+        dataMapRequest.getDataMap().putString(WearUtils.KEY_VENUE_ID, mVenueId);
+        if(bitmap != null){
+            dataMapRequest.getDataMap().putAsset(WearUtils.KEY_VENUE_IMAGE,
+                    Asset.createFromBytes(WearUtils.bitmapToByteArray(bitmap)));
+        }
+        PutDataRequest request = dataMapRequest.asPutDataRequest();
+        DataApi.DataItemResult result = Wearable.DataApi.putDataItem(mGoogleApiClient, request).await();
+        if(result != null){
+            Timber.d("Data Message sent");
+            result.getDataItem();
+        }else{
+            Timber.e("Data Message not sent.");
+        }
+    }
+
+    private void sendMessage() {
+        Collection<String> nodes = getNodes();
+        Iterator<String> itr = nodes.iterator();
+        while (itr.hasNext()) {
+            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient,
+                    itr.next(), WearUtils.buildStartCheckinActivityPath(), null).await();
+            if (!result.getStatus().isSuccess()) {
+                Timber.e("ERROR: failed to send Message: " + result.getStatus());
+            } else {
+                Timber.d("Message sent.");
             }
-        });
+            // Only do once.
+            break;
+        }
+    }
+
+    private void downloadImage(){
+        if(TextUtils.isEmpty(mImageUrl)){
+            sendDataMessage(null);
+            return;
+        }
+        Bitmap bm = ImageLoader.getInstance().loadImageSync(mImageUrl);
+        sendDataMessage(bm);
     }
 
 }

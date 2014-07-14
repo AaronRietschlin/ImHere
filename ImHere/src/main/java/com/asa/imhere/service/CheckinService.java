@@ -9,6 +9,7 @@ import com.asa.imhere.IHApplication;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.notifications.CheckinNotification;
+import com.asa.imhere.utils.DebugVenueProvider;
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
@@ -86,7 +87,7 @@ public class CheckinService extends IntentService {
                     return;
                 }
             } else {
-                checkinJsonResult = debugJson();
+                checkinJsonResult = DebugVenueProvider.getCheckinResponseString(getApplicationContext());
                 Timber.e("");
             }
             // TODO -
@@ -117,22 +118,4 @@ public class CheckinService extends IntentService {
         }
     }
 
-    /**
-     * Returns an example version of the response from the /assets folder. This way, we don't have to
-     * actually checkin.
-     */
-    private String debugJson() {
-        String json = null;
-        try {
-            InputStream is = getAssets().open("example_checkin_response.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            Timber.e(ex, "");
-        }
-        return json;
-    }
 }

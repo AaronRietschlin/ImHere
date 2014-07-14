@@ -21,6 +21,7 @@ import android.view.MenuItem;
 
 import com.asa.imhere.IHApplication;
 import com.asa.imhere.R;
+import com.asa.imhere.jobs.FetchVenueDetailJob;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
 import com.asa.imhere.notifications.CheckinNotification;
@@ -313,7 +314,7 @@ public class MainActivity extends AsaBaseActivity implements GooglePlayServicesC
                 DebugVenueProvider.sendDebugVenueEnteredEvent();
                 break;
             case R.id.action_debug_custom:
-                DebugGeofenceService.startService(this, DebugVenueProvider.buildDebugJson());
+                DebugGeofenceService.startService(this, DebugVenueProvider.getVenuefromAssets(getApplicationContext()));
         }
         return super.onOptionsItemSelected(item);
     }

@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.config.Configuration;
 import com.path.android.jobqueue.log.CustomLogger;
@@ -37,6 +39,10 @@ public class IHApplication extends Application {
         } else {
             Timber.plant(new CrashReportingTree());
         }
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+                .build();
+        ImageLoader.getInstance().init(config);
 
     }
 
