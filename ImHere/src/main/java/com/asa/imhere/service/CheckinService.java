@@ -3,19 +3,21 @@ package com.asa.imhere.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.asa.imhere.IHApplication;
 import com.asa.imhere.lib.foursquare.FsUtils;
 import com.asa.imhere.lib.foursquare.FsVenue;
+import com.asa.imhere.lib.otto.BusProvider;
 import com.asa.imhere.notifications.CheckinNotification;
+import com.asa.imhere.lib.otto.CheckinStatusEvent;
 import com.asa.imhere.utils.DebugVenueProvider;
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 import timber.log.Timber;
@@ -89,6 +91,8 @@ public class CheckinService extends IntentService {
             } else {
                 checkinJsonResult = DebugVenueProvider.getCheckinResponseString(getApplicationContext());
                 Timber.e("");
+//                postEventToMainThread(new CheckinStatusEvent(true));
+                BusProvider.postThreaded(new CheckinStatusEvent(true));
             }
             // TODO -
         } catch (InterruptedException e) {
@@ -116,6 +120,16 @@ public class CheckinService extends IntentService {
         if (responseCode > 0) {
             Crashlytics.setInt("RSPONSE_CODE", responseCode);
         }
+    }
+
+    private void postEventToMainThread(final Object object) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                BusProvider.post(object);
+            }
+        });
     }
 
 }

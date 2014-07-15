@@ -5,9 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.textservice.TextInfo;
 
+import com.asa.imhere.lib.otto.BusProvider;
+import com.asa.imhere.lib.otto.CheckinStatusEvent;
 import com.asa.imhere.lib.wear.WearUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,6 +51,26 @@ public class WearListenerService extends WearableListenerService {
             Intent intent = new Intent(getApplicationContext(), WearCheckinActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+        } else {
+            // It's some other type of URI, possibly the checkinstatus URI.
+            Uri uri = Uri.parse(path);
+            List<String> segments = uri.getPathSegments();
+            if (segments == null) {
+                return;
+            }
+            for (String segment : segments) {
+                if (TextUtils.equals(WearUtils.PATH_CHECKIN_STATUS, "/" + segment)) {
+                    // It's the checkin_status. So, get the status and inform the activity
+                    String lastPath = uri.getLastPathSegment();
+                    try {
+                        int status = Integer.parseInt(lastPath);
+                        SystemClock.sleep(2000);
+                        BusProvider.postThreaded(new CheckinStatusEvent(status));
+                    } catch (NumberFormatException e) {
+                        Timber.e("Error converting what should be a status from URI last path to intger: %d", path);
+                    }
+                }
+            }
         }
     }
 

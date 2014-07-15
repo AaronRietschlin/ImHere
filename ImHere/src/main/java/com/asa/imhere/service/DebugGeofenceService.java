@@ -131,7 +131,6 @@ public class DebugGeofenceService extends IntentService {
             results.add(node.getId());
         }
         return results;
-
     }
 
     private void sendDataMessage(Bitmap bitmap) {

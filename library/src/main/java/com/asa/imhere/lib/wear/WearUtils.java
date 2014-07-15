@@ -14,6 +14,7 @@ public class WearUtils {
     public static final String PATH_START = "/start";
     public static final String PATH_SHOWACTIVITY = "/showactivity";
     public static final String PATH_CHECKIN = "/checkin";
+    public static final String PATH_CHECKIN_STATUS = "/checkin_status";
 
     public static final String PATH_CHECKIN_ACTIVITY = "WearCheckinActivity";
 
@@ -21,6 +22,10 @@ public class WearUtils {
     public static final String KEY_VENUE_ID = "venue_id";
     public static final String KEY_VENUE_IMAGE = "venue_image";
     public static final String KEY_STATUS = "status";
+
+    public static final int CHECKIN_STATUS_SUCCESS = 39572;
+    public static final int CHECKIN_STATUS_FAILURE = 352325;
+
 
     public static String buildStartCheckinActivityPath() {
         return PATH_START + "/" + PATH_CHECKIN_ACTIVITY;
@@ -36,5 +41,9 @@ public class WearUtils {
     public static final int STATUS_DO_NOTHING = 5532;
 
     public static final long TIMEOUT_IN_MILLIS = 5000L;
+
+    public static String buildCheckinStatusPath(int status) {
+        return PATH_CHECKIN_STATUS + "/" + status;
+    }
 
 }

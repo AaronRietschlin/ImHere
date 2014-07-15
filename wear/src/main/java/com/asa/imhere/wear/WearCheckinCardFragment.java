@@ -2,9 +2,11 @@ package com.asa.imhere.wear;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.CardFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asa.imhere.lib.otto.BusProvider;
+import com.asa.imhere.lib.otto.CheckinStatusEvent;
 import com.asa.imhere.lib.wear.WearUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,6 +28,7 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.TimeUnit;
 
@@ -96,6 +101,7 @@ public class WearCheckinCardFragment extends CardFragment implements View.OnClic
     @Override
     public void onStart() {
         super.onStart();
+        BusProvider.registerThreaded(this);
         if (mGoogelApiClient != null && !mGoogelApiClient.isConnected() && !mGoogelApiClient.isConnecting()) {
             mGoogelApiClient.connect();
         }
@@ -104,6 +110,7 @@ public class WearCheckinCardFragment extends CardFragment implements View.OnClic
     @Override
     public void onStop() {
         super.onStop();
+        BusProvider.unregisterThreaded(this);
         if (mGoogelApiClient != null) {
             mGoogelApiClient.disconnect();
         }
@@ -112,7 +119,7 @@ public class WearCheckinCardFragment extends CardFragment implements View.OnClic
     private static int sCount = 0;
 
     private void sendSuccess() {
-        if(mGoogelApiClient == null || !mGoogelApiClient.isConnected()){
+        if (mGoogelApiClient == null || !mGoogelApiClient.isConnected()) {
             Toast.makeText(mContext, "Not connected to GMS.", Toast.LENGTH_LONG).show();
             return;
         }
@@ -125,9 +132,9 @@ public class WearCheckinCardFragment extends CardFragment implements View.OnClic
         Wearable.DataApi.putDataItem(mGoogelApiClient, request).setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(DataApi.DataItemResult dataItemResult) {
-                if(dataItemResult.getStatus().isSuccess()){
+                if (dataItemResult.getStatus().isSuccess()) {
                     Timber.d("Successfully sent data through from watch to phone.");
-                }else{
+                } else {
                     Timber.e("Unsuccessfully sent data through from watch to phone.");
                 }
             }
@@ -156,5 +163,31 @@ public class WearCheckinCardFragment extends CardFragment implements View.OnClic
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // TODO - implement this.
+    }
+
+    private static final int REQUEST_CODE_CONFIRMATION = 5254;
+
+    @Subscribe
+    public void onCheckinStatusEvent(CheckinStatusEvent event) {
+        if (event != null && isAdded()) {
+            Intent intent = new Intent(getActivity(), ConfirmationActivity.class);
+            if (event.isSuccess()) {
+                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
+            } else {
+                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
+            }
+            startActivityForResult(intent, REQUEST_CODE_CONFIRMATION);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_CONFIRMATION:
+                if (resultCode == Activity.RESULT_OK || isAdded()) {
+                    getActivity().finish();
+                }
+                break;
+        }
     }
 }
