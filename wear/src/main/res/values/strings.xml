@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">I\'m Here</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
+
+    <!-- For the checking activity -->
+    <string name="checkin">Checkin?</string>
+    <string name="checkin_message">Checkin to %s?</string>
+
+</resources>

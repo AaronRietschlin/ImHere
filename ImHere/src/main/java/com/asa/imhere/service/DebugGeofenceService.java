@@ -14,14 +14,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-import com.koushikdutta.ion.Ion;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.Collection;
@@ -137,7 +135,7 @@ public class DebugGeofenceService extends IntentService {
     }
 
     private void sendDataMessage(Bitmap bitmap) {
-        PutDataMapRequest dataMapRequest = PutDataMapRequest.create(WearUtils.PATH_CHECKIN);
+        PutDataMapRequest dataMapRequest = PutDataMapRequest.create(WearUtils.PATH_SHOWACTIVITY);
         DataMap map = dataMapRequest.getDataMap();
         map.putString(WearUtils.KEY_VENUE_NAME, mName);
         map.putString(WearUtils.KEY_VENUE_ID, mVenueId);
