@@ -13,6 +13,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
@@ -41,6 +43,8 @@ public class DebugGeofenceService extends IntentService {
 
     private GoogleApiClient mGoogleApiClient;
 
+    private static int sCount;
+
     public DebugGeofenceService() {
         super(TAG);
     }
@@ -62,7 +66,7 @@ public class DebugGeofenceService extends IntentService {
                     List<FsPhoto> photoList = photoItem.getItems();
                     if (photoList != null && photoList.size() > 0) {
                         FsPhoto photo = photoList.get(0);
-                        String imageUrl = photo.getFullUrl(photo.getHeight() / 3, photo.getWidth() / 3);
+                        String imageUrl = photo.getFullUrl(photo.getHeight() / 4, photo.getWidth() / 4);
                         intent.putExtra("imageUrl", imageUrl);
                     } else {
                         setNoPhoto("Venue photo list was null or empty.");
@@ -134,20 +138,23 @@ public class DebugGeofenceService extends IntentService {
 
     private void sendDataMessage(Bitmap bitmap) {
         PutDataMapRequest dataMapRequest = PutDataMapRequest.create(WearUtils.PATH_CHECKIN);
-        dataMapRequest.getDataMap().putString(WearUtils.KEY_VENUE_NAME, mName);
-        dataMapRequest.getDataMap().putString(WearUtils.KEY_VENUE_ID, mVenueId);
-        if(bitmap != null){
-            dataMapRequest.getDataMap().putAsset(WearUtils.KEY_VENUE_IMAGE,
-                    Asset.createFromBytes(WearUtils.bitmapToByteArray(bitmap)));
+        DataMap map = dataMapRequest.getDataMap();
+        map.putString(WearUtils.KEY_VENUE_NAME, mName);
+        map.putString(WearUtils.KEY_VENUE_ID, mVenueId);
+        if(bitmap != null && sCount %2 == 0){
+            Asset asset = Asset.createFromBytes(WearUtils.bitmapToByteArray(bitmap));
+            if(asset != null) {
+                map.putAsset(WearUtils.KEY_VENUE_IMAGE, asset);
+            }
         }
         PutDataRequest request = dataMapRequest.asPutDataRequest();
         DataApi.DataItemResult result = Wearable.DataApi.putDataItem(mGoogleApiClient, request).await();
         if(result != null){
             Timber.d("Data Message sent");
-            result.getDataItem();
         }else{
             Timber.e("Data Message not sent.");
         }
+        sCount++;
     }
 
     private void sendMessage() {
